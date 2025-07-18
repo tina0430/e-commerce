@@ -345,3 +345,38 @@
             }
         ]
         ```
+
+### 4.3. 단일 주문 상세 조회 (Get Single Order Details)
+- **Endpoint**: `GET /api/users/{userId}/orders/{orderId}`
+- **Description**: 특정 사용자의 단일 주문 상세 정보를 조회합니다.
+- **Parameters**:
+    - `userId` (Path Variable, Long): 사용자 ID
+    - `orderId` (Path Variable, Long): 주문 ID
+- **Responses**:
+    - `200 OK`:
+        ```json
+        {
+            "orderId": 1,
+            "totalAmount": 10000,
+            "status": "COMPLETED",
+            "items": [
+                {
+                    "productId": 1,
+                    "productName": "상품 A",
+                    "productOptionId": 101,
+                    "productOptionName": "옵션 A-1",
+                    "quantity": 1,
+                    "unitPrice": 10000,
+                    "discountAmount": 0,
+                    "finalPrice": 10000
+                }
+            ],
+            "createdAt": "2023-07-18T11:00:00"
+        }
+        ```
+    - `404 Not Found`:
+        ```json
+        {
+            "message": "주문을 찾을 수 없습니다."
+        }
+        ```
