@@ -2,6 +2,7 @@
 
 ## 1. Point API
 
+---
 ### 1.1. 잔액 조회 (Get Point Balance)
 - **Endpoint**: `GET /api/users/{userId}/point`
 - **Description**: 특정 사용자의 현재 포인트 잔액을 조회합니다.
@@ -120,8 +121,10 @@
         ```
 
 ### 2.2. 발급 가능 쿠폰 조회 (Get Available Coupons)
-- **Endpoint**: `GET /api/coupons/available`
-- **Description**: 현재 발급 가능한 쿠폰 목록을 조회합니다.
+- **Endpoint**: `GET /api/users/{userId}/coupons/available`
+- **Description**: 특정 사용자가 자신이 발급받을 수 있는 쿠폰 목록을 조회합니다.
+- **Parameters**:
+    - `userId` (Path Variable, Long): 사용자 ID
 - **Responses**:
     - `200 OK`:
         ```json
