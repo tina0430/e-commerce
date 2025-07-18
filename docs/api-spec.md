@@ -380,3 +380,28 @@
             "message": "주문을 찾을 수 없습니다."
         }
         ```
+
+### 4.4. 주문 상품 조회 (Get Ordered Products by User)
+- **Endpoint**: `GET /api/users/{userId}/orders/products`
+- **Description**: 특정 사용자가 주문한 상품 목록을 조회합니다.
+- **Parameters**:
+    - `userId` (Path Variable, Long): 사용자 ID
+- **Responses**:
+    - `200 OK`:
+        ```json
+        [
+            {
+                "productId": 1,
+                "name": "주문 상품 A",
+                "options": [
+                    {
+                        "productOptionId": 101,
+                        "productId": 1,
+                        "name": "옵션 A-1",
+                        "quantity": 1,
+                        "price": 10000
+                    }
+                ]
+            }
+        ]
+        ```
