@@ -8,7 +8,7 @@ erDiagram
       string coupon_name "쿠폰명"
       string discount_type "할인율/할인금액"
       int discount_value "할인 값"
-      int min_order_amount "최대 할인 금액"
+      int max_order_amount "최대 할인 금액"
       int min_order_price "최소 주문 금액"
       datetime issue_start_at "발급 시작일시"
       datetime issue_end_at "발급 종료일시"
