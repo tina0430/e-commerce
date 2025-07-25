@@ -38,9 +38,6 @@ public class ProductService {
      * @return 상품 정보
      */
     public Product getProduct(Long productId) {
-        if (productId == null || productId <= 0) {
-            throw new BusinessException(BusinessError.INVALID_PRODUCT_ID);
-        }
         ProductEntity productEntity = productRepository.findProductById(productId)
                 .orElseThrow(() -> new BusinessException(BusinessError.PRODUCT_NOT_FOUND));
         return mapper.toProduct(productEntity);

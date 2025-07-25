@@ -145,34 +145,6 @@ class ProductServiceTest {
             verify(productRepository).findProductById(999L);
             verify(mapper, never()).toProduct(any());
         }
-
-        @Test
-        @DisplayName("유효하지 않은 상품 ID로 조회하면 예외가 발생한다")
-        void getProduct_InvalidId() {
-            // when & then
-            assertThatThrownBy(() -> productService.getProduct(null))
-                    .isInstanceOf(BusinessException.class)
-                    .satisfies(exception -> {
-                        BusinessException businessException = (BusinessException) exception;
-                        assertThat(businessException.getCode()).isEqualTo(BusinessError.INVALID_PRODUCT_ID.getCode());
-                    });
-
-            assertThatThrownBy(() -> productService.getProduct(0L))
-                    .isInstanceOf(BusinessException.class)
-                    .satisfies(exception -> {
-                        BusinessException businessException = (BusinessException) exception;
-                        assertThat(businessException.getCode()).isEqualTo(BusinessError.INVALID_PRODUCT_ID.getCode());
-                    });
-
-            assertThatThrownBy(() -> productService.getProduct(-1L))
-                    .isInstanceOf(BusinessException.class)
-                    .satisfies(exception -> {
-                        BusinessException businessException = (BusinessException) exception;
-                        assertThat(businessException.getCode()).isEqualTo(BusinessError.INVALID_PRODUCT_ID.getCode());
-                    });
-
-            verify(productRepository, never()).findProductById(anyLong());
-        }
     }
 
     @Nested
