@@ -35,7 +35,7 @@ public class OrderItemEntity implements EntityBase {
     @Column(name = "product_id", nullable = false)
     private Long productId;
 
-    @Column(name = "product_option_id", nullable = false)
+    @Column(name = "product_option_id", insertable = false, updatable = false)
     private Long productOptionId;
 
     @Column(name = "quantity", nullable = false)
