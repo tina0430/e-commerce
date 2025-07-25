@@ -16,7 +16,7 @@ import java.util.List;
 public class CouponController implements CouponApiSpec {
 
     private final CouponService couponService;
-    private final CouponResponseMapper couponMapper;
+    private final CouponDtoMapper couponMapper;
 
     /**
      * @see CouponApiSpec#createAmountCouponPolicy(CouponPolicyDto.CreateAmountCouponRequest)
