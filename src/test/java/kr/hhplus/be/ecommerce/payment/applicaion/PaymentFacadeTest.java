@@ -27,7 +27,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -92,10 +92,8 @@ class PaymentFacadeTest {
             // given
             when(orderService.getOrder(TEST_USER_ID, TEST_ORDER_ID)).thenReturn(order);
             when(userService.getBalance(TEST_USER_ID)).thenReturn(TEST_USER_BALANCE);
-            doNothing().when(userService).usePoint(any(), any());
             when(paymentService.createPayment(any(), any(), any(), any())).thenReturn(payment);
             when(paymentService.processPaymentSuccess(any())).thenReturn(successPayment);
-            doNothing().when(orderService).confirmOrder(any(), any());
 
             // when
             Payment result = paymentFacade.payOrder(TEST_USER_ID, TEST_ORDER_ID);
@@ -119,9 +117,6 @@ class PaymentFacadeTest {
             // given
             when(orderService.getOrder(TEST_USER_ID, TEST_ORDER_ID)).thenReturn(order);
             when(userService.getBalance(TEST_USER_ID)).thenReturn(TEST_INSUFFICIENT_BALANCE);
-            doNothing().when(orderService).cancelOrder(any(), any());
-            doNothing().when(couponService).restoreUserCoupon(any(), any());
-            doNothing().when(productService).increaseStock(any(), any());
 
             // when & then
             assertThatThrownBy(() -> paymentFacade.payOrder(TEST_USER_ID, TEST_ORDER_ID))
@@ -133,7 +128,7 @@ class PaymentFacadeTest {
 
             verify(orderService).getOrder(TEST_USER_ID, TEST_ORDER_ID);
             verify(userService).getBalance(TEST_USER_ID);
-            verify(userService, never()).usePoint(any(), any());
+            verify(userService, never()).usePoint(anyLong(), anyLong());
             verify(orderService).cancelOrder(TEST_USER_ID, TEST_ORDER_ID);
             verify(couponService).restoreUserCoupon(TEST_COUPON_ID, TEST_USER_ID);
             verify(productService).increaseStock(TEST_PRODUCT_OPTION_ID, TEST_QUANTITY);
