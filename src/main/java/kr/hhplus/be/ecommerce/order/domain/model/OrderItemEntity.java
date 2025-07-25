@@ -1,0 +1,65 @@
+package kr.hhplus.be.ecommerce.order.domain.model;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import kr.hhplus.be.ecommerce.common.domain.EntityBase;
+import kr.hhplus.be.ecommerce.product.domain.model.ProductOptionEntity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "order_items")
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class OrderItemEntity implements EntityBase {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_item_id")
+    private Long orderItemId;
+
+    @Column(name = "order_id", nullable = false)
+    private Long orderId;
+
+    @Column(name = "product_id", nullable = false)
+    private Long productId;
+
+    @Column(name = "product_option_id", insertable = false, updatable = false)
+    private Long productOptionId;
+
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity;
+
+    @Column(name = "unit_price", nullable = false)
+    private Long unitPrice;
+
+    @Column(name = "discount_amount", nullable = false)
+    private Long discountAmount;
+
+    @Column(name = "final_price", nullable = false)
+    private Long finalPrice;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_option_id", nullable = false)
+    ProductOptionEntity productOption;
+
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    @Override
+    public Object getId() {
+        return orderItemId;
+    }
+}
