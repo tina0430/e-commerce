@@ -42,7 +42,6 @@ class PaymentFacadeTest {
     private static final Long TEST_COUPON_ID = 1L;
     private static final Long TEST_PRODUCT_ID = 1L;
     private static final Long TEST_PRODUCT_OPTION_ID = 1L;
-    private static final String TEST_PRODUCT_NAME = "테스트 상품";
     private static final String TEST_PRODUCT_OPTION_NAME = "테스트 옵션";
     private static final Integer TEST_QUANTITY = 2;
     private static final Long TEST_UNIT_PRICE = 10000L;
@@ -163,7 +162,6 @@ class PaymentFacadeTest {
                 .orderItemId(1L)
                 .orderId(TEST_ORDER_ID)
                 .productId(TEST_PRODUCT_ID)
-                .productName(TEST_PRODUCT_NAME)
                 .productOptionId(TEST_PRODUCT_OPTION_ID)
                 .productOptionName(TEST_PRODUCT_OPTION_NAME)
                 .quantity(TEST_QUANTITY)
