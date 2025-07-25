@@ -1,4 +1,4 @@
-package kr.hhplus.be.ecommerce.product;
+package kr.hhplus.be.ecommerce.product.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
