@@ -107,10 +107,10 @@ class PaymentFacadeTest {
 
             verify(orderService).getOrder(TEST_USER_ID, TEST_ORDER_ID);
             verify(userService).getBalance(TEST_USER_ID);
-            verify(userService).usePoint(any(), any());
-            verify(paymentService).createPayment(any(), any(), any(), any());
-            verify(paymentService).processPaymentSuccess(any());
-            verify(orderService).confirmOrder(any(), any());
+            verify(userService).usePoint(TEST_USER_ID, TEST_TOTAL_AMOUNT);
+            verify(paymentService).createPayment(TEST_ORDER_ID, TEST_TOTAL_AMOUNT, TEST_DISCOUNT_AMOUNT, TEST_FINAL_AMOUNT);
+            verify(paymentService).processPaymentSuccess(TEST_PAYMENT_ID);
+            verify(orderService).confirmOrder(TEST_USER_ID, TEST_ORDER_ID);
         }
 
         @Test
@@ -122,7 +122,6 @@ class PaymentFacadeTest {
             doNothing().when(orderService).cancelOrder(any(), any());
             doNothing().when(couponService).restoreUserCoupon(any(), any());
             doNothing().when(productService).increaseStock(any(), any());
-            doNothing().when(orderService).confirmOrder(any(), any());
 
             // when & then
             assertThatThrownBy(() -> paymentFacade.payOrder(TEST_USER_ID, TEST_ORDER_ID))
@@ -135,6 +134,9 @@ class PaymentFacadeTest {
             verify(orderService).getOrder(TEST_USER_ID, TEST_ORDER_ID);
             verify(userService).getBalance(TEST_USER_ID);
             verify(userService, never()).usePoint(any(), any());
+            verify(orderService).cancelOrder(TEST_USER_ID, TEST_ORDER_ID);
+            verify(couponService).restoreUserCoupon(TEST_COUPON_ID, TEST_USER_ID);
+            verify(productService).increaseStock(TEST_PRODUCT_OPTION_ID, TEST_QUANTITY);
         }
 
         @Test
