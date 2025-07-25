@@ -2,21 +2,21 @@ package kr.hhplus.be.ecommerce.common.exception;
 
 import kr.hhplus.be.ecommerce.common.exception.base.ExceptionBase;
 
-public class BusinessException extends ExceptionBase {
+public class SystemException extends ExceptionBase {
 
-    private final BusinessError error;
+    private final SystemError error;
 
-    public BusinessException(BusinessError error) {
+    public SystemException(SystemError error) {
         this(error, error.getMessage());
     }
 
-    public BusinessException(BusinessError error, String message) {
+    public SystemException(SystemError error, String message) {
         super(message);
         this.error = error;
     }
 
     @Override
-    public BusinessError getError() {
+    public SystemError getError() {
         return error;
     }
 
