@@ -16,11 +16,6 @@ public class CouponRepositoryImp implements CouponRepository {
     private final JpaCouponRepository jpaCouponRepository;
 
     @Override
-    public Optional<CouponPolicyEntity> findPolicyById(Long policyId) {
-        return jpaCouponRepository.findPolicyById(policyId);
-    }
-
-    @Override
     public List<CouponPolicyEntity> findAvailablePolicies() {
         return jpaCouponRepository.findAvailableCouponPolicies();
     }
