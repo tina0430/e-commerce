@@ -52,7 +52,7 @@ public class PaymentFacade {
         } catch (BusinessException be) {
             throw be;
         } catch (Exception e) {
-            String message = String.format("결제 처리 중 오류 발생 - userId: %d, orderId: {}, error: %s", userId, e.getMessage());
+            String message = String.format("결제 처리 중 오류 발생 - userId: %d, orderId: %d, error: %s", userId, orderId, e.getMessage());
             log.error(message, e);
             throw new SystemException(SystemError.UNKNOWN_ERROR, message);
         }
