@@ -40,34 +40,38 @@ public class CouponService {
 
     @Transactional
     public UserCoupon issueCoupon(Long userId, Long couponPolicyId) {
-        // TODO
-//        CouponPolicy couponPolicy = couponRepository.findPolicyById(couponPolicyId)
-//                .map(couponMapper::toCouponPolicy)
-//                .orElseThrow(() -> new BusinessException(BusinessError.COUPON_POLICY_NOT_FOUND));
-//        if (!couponPolicy.isAvailableForIssue()) {
-//            throw new BusinessException(BusinessError.COUPON_POLICY_UNAVAILABLE);
-//        }
-//        List<UserCoupon> userCoupons = couponRepository.findCouponsByUserId(userId).stream()
-//                .map(couponMapper::toUserCoupon)
-//                .toList();
-//        if (userCoupons.stream().anyMatch(c -> c.isIssuedFrom(couponPolicy))) {
-//            throw new BusinessException(BusinessError.COUPON_POLICY_ALREADY_ISSUED);
-//        }
-//        UserCoupon userCoupon = UserCoupon.issue(userId, couponPolicy);
-//        UserCoupon issuedUserCoupon = couponPolicy.issue();
-//        couponMapper.applyToEntity(userCoupon, userCoupon);
-//        UserCouponEntity saved = couponRepository.save(couponMapper.toUserCouponEntity(userCoupon));
-//        return couponMapper.toUserCoupon(saved);
-        return new UserCoupon();
+        CouponPolicy couponPolicy = getValidCouponPolicy(couponPolicyId);
+        validateNotAlreadyIssued(userId, couponPolicy);
+        UserCoupon userCoupon = UserCoupon.issue(userId, couponPolicy);
+        UserCouponEntity savedEntity = couponRepository.save(couponMapper.toUserCouponEntity(userCoupon));
+        return couponMapper.toUserCoupon(savedEntity);
     }
 
+    private CouponPolicy getValidCouponPolicy(Long couponPolicyId) {
+        CouponPolicyEntity entity = couponRepository.findPolicyById(couponPolicyId)
+                .orElseThrow(() -> new BusinessException(BusinessError.COUPON_POLICY_NOT_FOUND));
+        CouponPolicy policy = couponMapper.toCouponPolicy(entity);
+        if (!policy.isAvailableForIssue()) {
+            throw new BusinessException(BusinessError.COUPON_POLICY_UNAVAILABLE);
+        }
+        return policy;
+    }
+
+    private void validateNotAlreadyIssued(Long userId, CouponPolicy couponPolicy) {
+        List<UserCouponEntity> issuedEntities = couponRepository.findCouponsByUserId(userId);
+        boolean alreadyIssued = issuedEntities.stream()
+                .map(couponMapper::toUserCoupon)
+                .anyMatch(c -> c.isIssuedFrom(couponPolicy));
+        if (alreadyIssued) {
+            throw new BusinessException(BusinessError.COUPON_POLICY_ALREADY_ISSUED);
+        }
+    }
 
     /**
      * 쿠폰 유효성 검증
      *
      * @param userCouponId 쿠폰 ID
      * @param userId       사용자 ID
-     * @return 유효성 여부
      */
     public void validateCoupon(Long userCouponId, Long userId) {
         UserCouponEntity userCouponEntity = couponRepository.findCouponById(userCouponId)

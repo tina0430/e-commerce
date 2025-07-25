@@ -320,7 +320,7 @@ class UserCouponTest {
         }
 
         @Test
-        @DisplayName("사용 불가능한 쿠폰은 할인 금액이 0이다")
+        @DisplayName("사용 불가능한 쿠폰은 예외가 발생한다")
         void calculateDiscountAmount_WhenNotAvailable() {
             UserCoupon userCoupon = UserCoupon.builder()
                     .status(UserCouponStatus.USED)
@@ -331,7 +331,7 @@ class UserCouponTest {
                     .endAt(LocalDateTime.now().plusDays(1))
                     .build();
 
-            // isAvailable()에서 예외가 발생하므로 0을 반환
+            // isAvailable()에서 예외가 발생한다
             assertThatThrownBy(() -> userCoupon.calculateDiscountAmount(10000))
                     .isInstanceOf(BusinessException.class);
         }

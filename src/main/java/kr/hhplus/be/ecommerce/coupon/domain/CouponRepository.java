@@ -11,6 +11,7 @@ public interface CouponRepository {
     /**
      * 쿠폰 정책
      */
+    Optional<CouponPolicyEntity> findPolicyById(Long policyId);
     List<CouponPolicyEntity> findAvailablePolicies();
 
     /**
