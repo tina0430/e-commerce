@@ -23,7 +23,6 @@ class OrderTest {
     private static final Long TEST_DISCOUNT_AMOUNT = 2000L;
     private static final Long TEST_FINAL_AMOUNT = 18000L;
     private static final Long TEST_PRODUCT_ID = 1L;
-    private static final String TEST_PRODUCT_NAME = "테스트 상품";
     private static final Long TEST_PRODUCT_OPTION_ID = 1L;
     private static final String TEST_PRODUCT_OPTION_NAME = "테스트 옵션";
     private static final Integer TEST_QUANTITY = 2;
@@ -326,7 +325,6 @@ class OrderTest {
                     .orderItemId(1L)
                     .orderId(TEST_ORDER_ID)
                     .productId(TEST_PRODUCT_ID)
-                    .productName(TEST_PRODUCT_NAME)
                     .productOptionId(TEST_PRODUCT_OPTION_ID)
                     .productOptionName(TEST_PRODUCT_OPTION_NAME)
                     .quantity(TEST_QUANTITY)
@@ -391,7 +389,6 @@ class OrderTest {
                 .orderItemId(1L)
                 .orderId(TEST_ORDER_ID)
                 .productId(TEST_PRODUCT_ID)
-                .productName(TEST_PRODUCT_NAME)
                 .productOptionId(TEST_PRODUCT_OPTION_ID)
                 .productOptionName(TEST_PRODUCT_OPTION_NAME)
                 .quantity(TEST_QUANTITY)

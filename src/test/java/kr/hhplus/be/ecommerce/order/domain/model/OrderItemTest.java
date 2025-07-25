@@ -14,7 +14,6 @@ class OrderItemTest {
     private static final Long TEST_ORDER_ITEM_ID = 1L;
     private static final Long TEST_ORDER_ID = 1L;
     private static final Long TEST_PRODUCT_ID = 1L;
-    private static final String TEST_PRODUCT_NAME = "테스트 상품";
     private static final Long TEST_PRODUCT_OPTION_ID = 1L;
     private static final String TEST_PRODUCT_OPTION_NAME = "테스트 옵션";
     private static final Integer TEST_QUANTITY = 2;
@@ -38,7 +37,6 @@ class OrderItemTest {
             assertThat(orderItem.getOrderItemId()).isEqualTo(TEST_ORDER_ITEM_ID);
             assertThat(orderItem.getOrderId()).isEqualTo(TEST_ORDER_ID);
             assertThat(orderItem.getProductId()).isEqualTo(TEST_PRODUCT_ID);
-            assertThat(orderItem.getProductName()).isEqualTo(TEST_PRODUCT_NAME);
             assertThat(orderItem.getProductOptionId()).isEqualTo(TEST_PRODUCT_OPTION_ID);
             assertThat(orderItem.getProductOptionName()).isEqualTo(TEST_PRODUCT_OPTION_NAME);
             assertThat(orderItem.getQuantity()).isEqualTo(TEST_QUANTITY);
@@ -86,7 +84,6 @@ class OrderItemTest {
                     .orderItemId(TEST_ORDER_ITEM_ID)
                     .orderId(TEST_ORDER_ID)
                     .productId(TEST_PRODUCT_ID)
-                    .productName(TEST_PRODUCT_NAME)
                     .productOptionId(TEST_PRODUCT_OPTION_ID)
                     .productOptionName(TEST_PRODUCT_OPTION_NAME)
                     .quantity(TEST_QUANTITY)
@@ -180,7 +177,6 @@ class OrderItemTest {
                 .orderItemId(TEST_ORDER_ITEM_ID)
                 .orderId(TEST_ORDER_ID)
                 .productId(TEST_PRODUCT_ID)
-                .productName(TEST_PRODUCT_NAME)
                 .productOptionId(TEST_PRODUCT_OPTION_ID)
                 .productOptionName(TEST_PRODUCT_OPTION_NAME)
                 .quantity(TEST_QUANTITY)
@@ -195,7 +191,6 @@ class OrderItemTest {
                 .orderItemId(TEST_ORDER_ITEM_ID)
                 .orderId(TEST_ORDER_ID)
                 .productId(TEST_PRODUCT_ID)
-                .productName(TEST_PRODUCT_NAME)
                 .productOptionId(TEST_PRODUCT_OPTION_ID)
                 .productOptionName(TEST_PRODUCT_OPTION_NAME)
                 .quantity(TEST_QUANTITY)

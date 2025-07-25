@@ -18,7 +18,6 @@ public class OrderItem {
     private Long orderItemId;
     private Long orderId;
     private Long productId;
-    private String productName;
     private Long productOptionId;
     private String productOptionName;
     private Integer quantity;
