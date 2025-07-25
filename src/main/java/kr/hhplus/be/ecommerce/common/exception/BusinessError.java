@@ -11,11 +11,14 @@ public enum BusinessError {
     /**
      * 사용자
      */
-    USER_NOT_FOUND("U001", HttpStatus.BAD_REQUEST, "유효하지 않은 사용자입니다."),
+    INVALID_USER_ID("U101", HttpStatus.BAD_REQUEST, "유효하지 않은 사용자 ID입니다."),
+    USER_NOT_FOUND("U001", HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."),
 
     /**
      * 포인트
      */
+    INVALID_POINT_TRANSACTION_ID("PT101", HttpStatus.BAD_REQUEST, "유효하지 않은 포인트 거래내역 ID입니다."),
+    INSUFFICIENT_POINT("P101", HttpStatus.BAD_REQUEST, "잔액이 부족합니다."), // TODO CONFLICT 도 고려해보기
 
     /**
      * 쿠폰
