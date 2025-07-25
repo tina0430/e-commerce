@@ -61,7 +61,8 @@ public enum BusinessError implements ErrorBase {
     /**
      * 주문
      */
-    ORDER_NOT_FOUND("O2001",  HttpStatus.NOT_FOUND, "해당 주문 정보가 존재하지 않습니다."),
+    ORDER_NOT_FOUND("ORDER-001",  HttpStatus.NOT_FOUND, "해당 주문 정보가 존재하지 않습니다."),
+    INVALID_DISCOUNT_AMOUNT("ORDER-003", HttpStatus.BAD_REQUEST, "할인 금액이 상품 가격보다 클 수 없습니다."),
 
     /**
      * 결제
