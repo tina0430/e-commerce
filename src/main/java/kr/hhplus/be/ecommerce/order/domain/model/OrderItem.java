@@ -1,7 +1,5 @@
 package kr.hhplus.be.ecommerce.order.domain.model;
 
-import kr.hhplus.be.ecommerce.common.exception.BusinessError;
-import kr.hhplus.be.ecommerce.common.exception.BusinessException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,10 +31,6 @@ public class OrderItem {
     }
 
     public void applyDiscount(Long discountAmount) {
-        Long price = getPrice();
-        if (discountAmount > price) {
-            throw new BusinessException(BusinessError.INVALID_DISCOUNT_AMOUNT);
-        }
         this.discountAmount = discountAmount;
         this.finalPrice = getPrice() - discountAmount;
     }
