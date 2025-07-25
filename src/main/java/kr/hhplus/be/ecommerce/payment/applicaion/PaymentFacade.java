@@ -7,6 +7,7 @@ import kr.hhplus.be.ecommerce.common.exception.SystemException;
 import kr.hhplus.be.ecommerce.coupon.domain.CouponService;
 import kr.hhplus.be.ecommerce.order.domain.OrderService;
 import kr.hhplus.be.ecommerce.order.domain.model.Order;
+import kr.hhplus.be.ecommerce.order.domain.model.OrderItem;
 import kr.hhplus.be.ecommerce.payment.domain.PaymentService;
 import kr.hhplus.be.ecommerce.payment.domain.model.Payment;
 import kr.hhplus.be.ecommerce.product.domain.ProductService;
@@ -62,6 +63,25 @@ public class PaymentFacade {
      * @param order 실패한 주문
      */
     private void handlePaymentFailure(Order order) {
-        //TODO
+        log.info("결제 실패 보상 트랜잭션 시작 - orderId: {}", order.getOrderId());
+
+        try {
+            orderService.cancelOrder(order.getUserId(), order.getOrderId());
+            if (order.hasCoupon()) {
+                couponService.restoreUserCoupon(order.getUserCouponId(), order.getUserId());
+            }
+            for (OrderItem orderItem : order.getOrderItems()) {
+                productService.increaseStock(
+                    orderItem.getProductOptionId(),
+                    orderItem.getQuantity()
+                );
+            }
+            orderService.confirmOrder(order.getUserId(), order.getOrderId());
+            log.info("결제 실패 보상 트랜잭션 완료 - orderId: {}", order.getOrderId());
+        } catch (Exception e) {
+            log.error("결제 실패 보상 트랜잭션 중 오류 발생 - orderId: {}, error: {}", order.getOrderId(), e.getMessage());
+            // 보상 트랜잭션 실패는 로깅만 하고 상위로 전파하지 않음
+            // todo alertService.sendToSlack("보상 트랜잭션 실패", order.getOrderId(), e); 구현
+        }
     }
 }
