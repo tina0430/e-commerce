@@ -55,7 +55,6 @@ public class OrderDto {
                                        LocalDateTime createdAt) {}
 
     public record OrderItemResponse(Long productId,
-                                    String productName,
                                     Long productOptionId,
                                     String productOptionName,
                                     Integer quantity,
