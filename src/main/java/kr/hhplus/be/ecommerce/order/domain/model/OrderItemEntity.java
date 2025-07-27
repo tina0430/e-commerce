@@ -54,10 +54,6 @@ public class OrderItemEntity implements EntityBase {
     @JoinColumn(name = "product_option_id", nullable = false)
     ProductOptionEntity productOption;
 
-    public Long getOrderId() {
-        return orderId;
-    }
-
     @Override
     public Object getId() {
         return orderItemId;
