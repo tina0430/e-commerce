@@ -7,7 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import kr.hhplus.be.ecommerce.common.domain.EntityBase;
 import kr.hhplus.be.ecommerce.product.domain.model.ProductOptionEntity;
@@ -50,7 +50,7 @@ public class OrderItemEntity implements EntityBase {
     @Column(name = "final_price", nullable = false)
     private Long finalPrice;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY) // fixme 똑바로 생각해
     @JoinColumn(name = "product_option_id", nullable = false)
     ProductOptionEntity productOption;
 
