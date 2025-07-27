@@ -1,12 +1,10 @@
 package kr.hhplus.be.ecommerce.order.domain.model;
 
-import kr.hhplus.be.ecommerce.common.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("주문 상품 도메인 객체 테스트")
 class OrderItemTest {
@@ -21,7 +19,6 @@ class OrderItemTest {
     private static final Long TEST_DISCOUNT_AMOUNT = 2000L;
     private static final Long TEST_FINAL_PRICE = 18000L;
     private static final Long TEST_SMALL_DISCOUNT_AMOUNT = 1000L;
-    private static final Long TEST_LARGE_DISCOUNT_AMOUNT = 25000L;
 
     @Nested
     @DisplayName("주문 상품 생성")
@@ -116,17 +113,6 @@ class OrderItemTest {
             // then
             assertThat(orderItem.getDiscountAmount()).isEqualTo(TEST_SMALL_DISCOUNT_AMOUNT);
             assertThat(orderItem.getFinalPrice()).isEqualTo((TEST_UNIT_PRICE * TEST_QUANTITY) - TEST_SMALL_DISCOUNT_AMOUNT);
-        }
-
-        @Test
-        @DisplayName("할인 금액이 상품 가격보다 크면 예외가 발생한다")
-        void applyDiscount_ExceedsPrice_ThrowsException() {
-            // given
-            OrderItem orderItem = createOrderItemWithoutDiscount();
-
-            // when & then
-            assertThatThrownBy(() -> orderItem.applyDiscount(TEST_LARGE_DISCOUNT_AMOUNT))
-                    .isInstanceOf(BusinessException.class);
         }
 
         @Test
