@@ -9,8 +9,9 @@ services:
       - MYSQL_USER=application
       - MYSQL_PASSWORD=application
       - MYSQL_DATABASE=hhplus
-    volumes:
-      - ./data/mysql/:/var/lib/mysql
+#    volumes:
+#      - ./data/mysql/initdb:/docker-entrypoint-initdb.d
+#      - ./data/mysql/:/var/lib/mysql
 
 networks:
   default:

@@ -38,6 +38,7 @@ dependencies {
 
     // DB
 	runtimeOnly("com.mysql:mysql-connector-j")
+//	runtimeOnly("com.h2database:h2")
 
     // Lombok
     compileOnly("org.projectlombok:lombok")
@@ -66,4 +67,13 @@ dependencies {
 tasks.withType<Test> {
 	useJUnitPlatform()
 	systemProperty("user.timezone", "UTC")
+}
+
+val composeUp by tasks.registering(Exec::class) {
+	workingDir = rootDir
+	commandLine("docker-compose", "up", "-d", )
+}
+
+tasks.named("bootRun") {
+	dependsOn(composeUp)
 }
