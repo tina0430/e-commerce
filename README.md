@@ -35,8 +35,9 @@
    - 영속성 컨텍스트 유지 및 반영 전략
       - 도메인 객체의 상태 변경을 entity에 반영하는 책임은 PersistenceMapper의 applyToEntity 메서드가 담당<br>
       - 트랜잭션 범위 내 JPA의 dirty checking 을 활용하여 DB에 자동 반영되도록 구성
-      - 작은 규모 + 1인 개발 환경에서는 applyToEntity() 호출 원칙을 안정적으로 유지할 수 있다고 판단
-      - 향후 확장을 고려하여 PersistenceUpdater 등의 서브 컴포넌트를 통해 책임을 더 명확히 분리하는 방안도 검토 중
+      - 한계점: applyToEntity()는 영속 상태(EntityManager에 관리되는)의 엔티티에만 호출되어야 하며, detached 상태의 엔티티에서는 반영이 누락될 수 있음
+         - 작은 규모 + 1인 개발 환경에서는 applyToEntity() 호출 원칙을 안정적으로 유지할 수 있다고 판단
+         - 향후 확장을 고려하여 PersistenceUpdater 등의 서브 컴포넌트를 통해 책임을 더 명확히 분리하는 방안도 검토 중
       ```java
       default void applyToEntity(Order domain, OrderEntity entity) {
               if (domain == null || entity == null) {
@@ -107,7 +108,9 @@
    - 근거: 쿠폰 정책이 큰 도메인이 아님 + 작은 규모의 프로젝트라서 굳이 나누지 않음<br>
 5. 보상 트랜잭션 처리는 Facade의 역할일까, Service의 역할일까?<br>
    - 결론: Facade<br>
-   - 근거: 보상 로직은 여러 도메인(coupon, order, product 등)에 걸쳐있어 단일 도메인 서비스에 책임을 두기 어렵고, 트랜잭션 흐름과 책임 분리가 필요함<br>
+   - 근거
+      - 보상 로직은 여러 도메인(coupon, order, product 등)에 걸쳐있어 단일 도메인 서비스에 책임을 두기에는 부적절함<br>
+      - 도메인 간 조율 및 트랜잭션 흐름을 관리하는 Application 레이어에서 처리하는 것이 책임 분리 측면에서 더 적합<br>
 6. 결제 상태 설계가 필요할까?<br>
    - 결론: 필요함<br>
    - 근거: 상태 기반 흐름 제어가 가능하고 장애 분석도 수월함<br>
