@@ -23,10 +23,10 @@
    | `getOrder(userId, orderId)`     | ❌  | 단순 조회만 수행     |
 
 4. 예외 처리 전략<br>
-   BusinessException과 SystemException을 구분<br>
-   - 비즈니스 조건 위반 → BusinessException<br>
-   - 그외의 예외적 상황 → SystemException<br>
-   1. Controller 레이어의 예외 처리 전략<br>
+   - BusinessException, SystemException 구분<br>
+      - 비즈니스 조건 위반 → BusinessException<br>
+      - 그외의 예외적 상황 → SystemException<br>
+   - Controller 레이어의 예외 처리 전략<br>
       - 예외 발생 지점<br>
          - DTO 바인딩 실패<br>
          - PathVariable/RequestParam 변환 실패<br>
@@ -35,7 +35,7 @@
          - @ControllerAdvice + @ExceptionHandler<br>
          - SystemException 던짐<br>
          - 클라이언트에게 400, 403, 404, 500 등으로 명확하게 응답<br>
-   2. Application 레이어의 예외 처리 전략<br>
+   - Application 레이어의 예외 처리 전략<br>
        - 예외 발생 지점<br>
          - 외부 시스템 연동 실패 (결제 API, 메시지 브로커, DB 등)<br>
          - 흐름 제어상 명확하게 나눠야 하는 예외<br>
@@ -44,7 +44,7 @@
          - BusinessException은 그대로 던짐 (컨트롤러로 전파)<br>
          - RuntimeException 등은 catch 후 → SystemException으로 래핑<br>
          - 흐름이 중요한 경우 로깅<br>
-   3. Domain 레이어의 예외 처리 전략<br>
+   - Domain 레이어의 예외 처리 전략<br>
       - 예외 발생 지점<br>
          - 정책 위반, 유효성 불충족, 상태 변경 불가능 등의 비즈니스 규칙 위반<br>
          - 도메인 엔티티 내부의 불변조건 위반<br>
@@ -52,7 +52,7 @@
         - BusinessException 던짐<br>
         - Exception 메시지는 구체적인 비즈니스 상황을 담도록 함<br>
         - BusinessError enum 을 활용해 일관성 유지<br>
-   4. Infrastructure 레이어의 예외 처리 전략<br>
+   - Infrastructure 레이어의 예외 처리 전략<br>
      - 예외 발생 지점<br>
         - QueryDSL 등 외부 의존 처리 실패<br>
      - 처리 전략<br>
