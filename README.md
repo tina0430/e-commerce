@@ -33,6 +33,7 @@
          - 비즈니스 로직에서 전달된 예외<br>
       - 처리 방식<br>
          - @ControllerAdvice + @ExceptionHandler<br>
+         - SystemException 던짐<br>
          - 클라이언트에게 400, 403, 404, 500 등으로 명확하게 응답<br>
    2. Application 레이어의 예외 처리 전략<br>
        - 예외 발생 지점<br>
@@ -48,7 +49,7 @@
          - 정책 위반, 유효성 불충족, 상태 변경 불가능 등의 비즈니스 규칙 위반<br>
          - 도메인 엔티티 내부의 불변조건 위반<br>
       - 처리 방식<br>
-        - 반드시 BusinessException을 사용<br>
+        - BusinessException 던짐<br>
         - Exception 메시지는 구체적인 비즈니스 상황을 담도록 함<br>
         - BusinessError enum 을 활용해 일관성 유지<br>
    4. Infrastructure 레이어의 예외 처리 전략<br>
@@ -61,6 +62,7 @@
 ### 패키지 구조
 ```
 kr.hhplus.be.ecommerce
+├── common
 └── [ domain ]
     ├── domain
     ├── application
