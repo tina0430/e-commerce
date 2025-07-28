@@ -4,25 +4,48 @@
 ---
 ### 설계 기준
 1. DDD & 클린 아키텍처의 도입<br>
-   도메인 로직을 최대한 도메인 내부로 끌어들이고, 도메인이 스스로의 룰을 갖도록 유도<br>
-   Entity, Value Object, Domain Service를 명확히 구분<br>
-   계층 간 책임과 의존 방향을 분리<br>
+   - 도메인 로직을 최대한 도메인 내부로 끌어들이고, 도메인이 스스로의 룰을 갖도록 유도<br>
+   - Entity, Value Object, Domain Service를 명확히 구분<br>
+   - 계층 간 책임과 의존 방향을 분리<br>
 2. 작은 규모에 맞는 실용적 구조<br>
-   작은 프로젝트 규모에 맞게 ApplicationService는 사용하지 않고 DomainService만 사용<br>
-   Facade는 3개 이상의 도메인을 오케스트레이션할 때에만 사용<br>
-   무리한 추상화보다 가독성과 유지보수성을 우선<br>
-3. 트랜잭션 관리<br>
-   DB 상태 변경이 일어나는 애플리케니션 계층 메서드 / 서비스 메서드에만 @Transactional 부여<br>
-   비즈니스 로직의 원자성 단위를 기준으로 붙임<br>
-   읽기 전용 작업에는 부여하지 않음 (불필요한 트랜잭션 회피)<br>
-
-   | 위치                              | 사용 | 이유            |
-   | ------------------------------- |----| ------------- |
-   | `OrderService.createOrder()`    | ✅  | 주문 생성 및 저장 포함 |
-   | `CouponService.useUserCoupon()` | ✅  | 상태 변경 포함      |
-   | `getOrder(userId, orderId)`     | ❌  | 단순 조회만 수행     |
-
-4. 예외 처리 전략<br>
+   - 작은 프로젝트 규모에 맞게 ApplicationService는 사용하지 않고 DomainService만 사용<br>
+   - 제한적인 상황에서만 Facade도입: 3개 이상의 도메인을 오케스트레이션할 때에만 사용<br>
+   - 무리한 추상화보다 가독성과 유지보수성을 우선<br>
+   - 기능별로 패키징
+      
+   ```
+   kr.hhplus.be.ecommerce
+   ├── common
+   ├── order
+   │   ├── domain
+   │   ├── infrastructure
+   │   ├── presentation
+   │   └── application
+   ├── coupon
+   ├── ...
+   ```
+4. 트랜잭션 및 도메인 변경 반영 전략<br>
+   - @Transactional 부여 기준
+      - 비즈니스 로직의 원자성 단위를 기준으로 부여<br>
+      - DB 상태 변경이 일어나는 애플리케니션, 서비스 계층 메서드에만 부여<br>
+      - 읽기 전용 작업에는 부여하지 않음 (불필요한 트랜잭션 회피)<br>
+      - 상위 메서드에서 @Transactional이 부여되어 있고, 컨트롤러의 호출이 따로 없는 경우에는 중복 선언을 하지 않음<br>
+   - 영속성 컨텍스트 유지 및 반영 전략
+      - 도메인 객체의 상태 변경을 entity에 반영하는 책임은 PersistenceMapper의 applyToEntity 메서드가 담당<br>
+      - 트랜잭션 범위 내 JPA의 dirty checking 을 활용하여 DB에 자동 반영되도록 구성
+      - 작은 규모 + 1인 개발 환경에서는 applyToEntity() 호출 원칙을 안정적으로 유지할 수 있다고 판단
+      - 향후 확장을 고려하여 PersistenceUpdater 등의 서브 컴포넌트를 통해 책임을 더 명확히 분리하는 방안도 검토 중
+      ```java
+      default void applyToEntity(Order domain, OrderEntity entity) {
+              if (domain == null || entity == null) {
+                  return;
+              }
+              entity.setStatus(domain.getStatus());
+              entity.setTotalAmount(domain.getTotalAmount());
+              entity.setUpdatedAt(domain.getUpdatedAt());
+          }
+      ```
+5. 예외 처리 전략<br>
    - BusinessException, SystemException 구분<br>
       - 비즈니스 조건 위반 → BusinessException<br>
       - 그외의 예외적 상황 → SystemException<br>
@@ -57,18 +80,12 @@
         - QueryDSL 등 외부 의존 처리 실패<br>
      - 처리 전략<br>
         - Facade 또는 Application 레이어에서 try-catch<br>
----
+6. 계층간 모델 맵핑
+   - Dto <-> Domain Object
+      - DtoMapper 활용
+   - Entity <-> Domain Object 
+      - PersistenceMapper 활용
 
-### 패키지 구조
-```
-kr.hhplus.be.ecommerce
-├── common
-└── [ domain ]
-    ├── domain
-    ├── application
-    ├── presentation
-    └── infrastructure 
-```
 ---
 
 ### 그 외 고민 포인트<br>
@@ -82,13 +99,13 @@ kr.hhplus.be.ecommerce
    - 결론: 해야함<br>
    - 근거
       - 외부에서 전달한 List를 그대로 참조하면 사이드 이펙트 발생 가능<br>
-      - 불변성 유지 또는 추후 도메인 로직에서 조작을 위한 캡슐화 가능<br>
+      - 불변성 유지 또는 추후 도메인 로직에서 조작을 위한 캡슐화 가능(중요)<br>
 4. 쿠폰 vs 쿠폰 정책을 나눠야 할까?<br>
    - 결론: 나누지 않음<br>
-   - 근거: 쿠폰 정책이 큰 도메인이 아님 + 작은 규모의 프로젝트라서<br>
+   - 근거: 쿠폰 정책이 큰 도메인이 아님 + 작은 규모의 프로젝트라서 굳이 나누지 않음<br>
 5. 보상 트랜잭션 처리는 Facade의 역할일까, Service의 역할일까?<br>
    - 결론: Facade<br>
-   - 근거: 보상 로직은 여러 도메인(coupon, order, product 등)에 걸쳐있고,단일 도메인 서비스에 책임을 두기 어렵고, 트랜잭션 흐름과 책임 분리가 필요<br>
+   - 근거: 보상 로직은 여러 도메인(coupon, order, product 등)에 걸쳐있어 단일 도메인 서비스에 책임을 두기 어렵고, 트랜잭션 흐름과 책임 분리가 필요함<br>
 6. 결제 상태 설계가 필요할까?<br>
    - 결론: 필요함<br>
    - 근거: 상태 기반 흐름 제어가 가능하고 장애 분석도 수월함<br>
@@ -97,7 +114,7 @@ kr.hhplus.be.ecommerce
 
 #### Running Docker Containers
 
-`local` profile 로 실행하기 위하여 인프라가 설정되어 있는 Docker 컨테이너를 실행해주셔야 합니다.
+`local` profile 로 실행하기 위하여 인프라가 설정되어 있는 Docker 컨테이너를 실행
 
 ```bash
 docker-compose up -d
