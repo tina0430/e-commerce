@@ -1,6 +1,5 @@
 package kr.hhplus.be.ecommerce.payment.applicaion;
 
-import kr.hhplus.be.ecommerce.common.exception.BusinessError;
 import kr.hhplus.be.ecommerce.common.exception.BusinessException;
 import kr.hhplus.be.ecommerce.common.exception.SystemError;
 import kr.hhplus.be.ecommerce.common.exception.SystemException;
@@ -31,27 +30,23 @@ public class PaymentFacade {
     @Transactional
     public Payment payOrder(Long userId, Long orderId) {
         log.info("결제 처리 시작 - userId: {}, orderId: {}", userId, orderId);
+        Order order = orderService.getOrder(userId, orderId);
         try {
-            Order order = orderService.getOrder(userId, orderId);
-            Long userBalance = userService.getBalance(userId);
             Long requiredAmount = order.getTotalAmount();
-            if (userBalance < requiredAmount) {
-                log.error("포인트 부족 - userId: {}, required: {}, balance: {}", userId, requiredAmount, userBalance);
-                handlePaymentFailure(order);
-                throw new BusinessException(BusinessError.INSUFFICIENT_POINT);
-            }
             userService.usePoint(userId, requiredAmount);
             log.info("포인트 차감 완료 - userId: {}, amount: {}", userId, requiredAmount);
             Payment payment = paymentService.createPayment(orderId, order.getTotalAmount(), order.getDiscountAmount(), order.getFinalAmount());
-            // todo 외부 데이터 플랫폼에 결제 데이터 전송
             log.info("결제 내역 저장 완료 - paymentId: {}", payment.getPaymentId());
             Payment successPayment = paymentService.processPaymentSuccess(payment.getPaymentId());
+            // todo 외부 데이터 플랫폼에 결제 데이터 전송
             orderService.confirmOrder(order.getUserId(), order.getOrderId());
             log.info("결제 처리 완료 - userId: {}, orderId: {}, paymentId: {}", userId, orderId, successPayment.getPaymentId());
             return successPayment;
         } catch (BusinessException be) {
+            handlePaymentFailure(order);
             throw be;
         } catch (Exception e) {
+            handlePaymentFailure(order);
             String message = String.format("결제 처리 중 오류 발생 - userId: %d, orderId: %d, error: %s", userId, orderId, e.getMessage());
             log.error(message, e);
             throw new SystemException(SystemError.UNKNOWN_ERROR, message);
