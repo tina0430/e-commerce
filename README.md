@@ -1,4 +1,6 @@
-## E-Commerce Backend 설계 개요
+# E-Commerce 
+
+## 아키텍처 설계 개요
 - 실용적인 수준에서 DDD(Domain-Driven Design) 도입<br>
 - 헥사고날 아키텍처 미적용 사유<br>
    - 본 프로젝트는 소규모(단일 서비스, 단일 팀, 1인 개발)환경을 기반으로 하며, 헥사고날 아키텍처(Port & Adapter 구조)는 복잡도 대비 실효성이 낮다고 판단하여 도입하지 않음<br>
