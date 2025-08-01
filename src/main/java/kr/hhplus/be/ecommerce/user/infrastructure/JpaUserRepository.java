@@ -7,6 +7,7 @@ import kr.hhplus.be.ecommerce.user.domain.model.PointTransactionEntity;
 import kr.hhplus.be.ecommerce.user.domain.model.UserEntity;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +43,34 @@ public class JpaUserRepository extends JpaRepositoryBase {
         return queryFactory
                 .selectFrom(pointTransactionEntity)
                 .where(pointTransactionEntity.userId.eq(userId))
+                .orderBy(pointTransactionEntity.createdAt.desc())
                 .fetch();
+    }
+
+    public List<PointTransactionEntity> findByUserIdAndCreatedAtBeforeOrderByCreatedAtDesc(
+            Long userId, LocalDateTime cursor, int size) {
+        return queryFactory
+                .selectFrom(pointTransactionEntity)
+                .where(
+                        pointTransactionEntity.userId.eq(userId),
+                        pointTransactionEntity.createdAt.lt(cursor)
+                )
+                .orderBy(pointTransactionEntity.createdAt.desc())
+                .limit(size)
+                .fetch();
+    }
+
+    public boolean existsByUserIdAndCreatedAtBefore(Long userId, LocalDateTime cursor) {
+        Integer result = queryFactory
+                .selectOne()
+                .from(pointTransactionEntity)
+                .where(
+                        pointTransactionEntity.userId.eq(userId),
+                        pointTransactionEntity.createdAt.lt(cursor)
+                )
+                .fetchFirst(); // 있으면 1, 없으면 null
+
+        return result != null;
     }
 
     public PointTransactionEntity savePointTransactionEntity(PointTransactionEntity pointTransactionEntity) {

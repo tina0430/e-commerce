@@ -6,6 +6,7 @@ import kr.hhplus.be.ecommerce.user.domain.model.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +25,7 @@ public class UserRepositoryImp implements UserRepository {
     }
 
     @Override
-    public UserEntity save(UserEntity userEntity) {
+    public UserEntity saveUser(UserEntity userEntity) {
         return jpaUserRepository.saveUserEntity(userEntity);
     }
 
@@ -37,7 +38,18 @@ public class UserRepositoryImp implements UserRepository {
     }
 
     @Override
-    public PointTransactionEntity save(PointTransactionEntity pointTransactionEntity) {
+    public List<PointTransactionEntity> findTransactionsByUserIdAndCreatedAtBeforeOrderByCreatedAtDesc(
+            Long userId, LocalDateTime cursor, int size) {
+        return jpaUserRepository.findByUserIdAndCreatedAtBeforeOrderByCreatedAtDesc(userId, cursor, size);
+    }
+
+    @Override
+    public boolean existsByUserIdAndCreatedAtBefore(Long userId, LocalDateTime cursor) {
+        return jpaUserRepository.existsByUserIdAndCreatedAtBefore(userId, cursor);
+    }
+
+    @Override
+    public PointTransactionEntity savePointTransaction(PointTransactionEntity pointTransactionEntity) {
         return jpaUserRepository.savePointTransactionEntity(pointTransactionEntity);
     }
 }

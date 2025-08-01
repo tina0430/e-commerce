@@ -17,8 +17,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
 @DisplayName("사용자 컨트롤러 단위 테스트")
@@ -130,4 +132,5 @@ class UserControllerUnitTest {
                 .andExpect(jsonPath("$[0].transactionType").value(transactionType.name()))
                 .andExpect(jsonPath("$[0].amount").value(TEST_TRANSACTION_AMOUNT));
     }
+
 }
