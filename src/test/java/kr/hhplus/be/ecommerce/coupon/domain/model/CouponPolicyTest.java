@@ -206,6 +206,7 @@ class CouponPolicyTest {
             
             // 첫 번째 발급
             policy.issue(issuedCoupons);
+            issuedCoupons.add(UserCoupon.builder().couponPolicyId(TEST_COUPON_POLICY_ID).build());
             
             // when & then
             assertThatThrownBy(() -> policy.issue(issuedCoupons))

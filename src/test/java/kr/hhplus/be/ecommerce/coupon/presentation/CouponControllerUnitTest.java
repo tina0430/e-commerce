@@ -65,12 +65,13 @@ class CouponControllerUnitTest {
         @Test
         @DisplayName("금액 쿠폰 정책 생성 성공")
         void createAmountCouponPolicy() throws Exception {
+            // given
             CouponPolicyDto.CreateAmountCouponRequest request = new CouponPolicyDto.CreateAmountCouponRequest(
                     TEST_COUPON_NAME, TEST_DISCOUNT_VALUE, TEST_MIN_ORDER_AMOUNT, TEST_MAX_DISCOUNT_AMOUNT,
                     TEST_ISSUE_START, TEST_ISSUE_END, TEST_TOTAL_QUANTITY, TEST_VALID_DAYS
             );
 
-            // 실제 컨트롤러는 하드코딩된 1L을 반환
+            // when & then
             mockMvc.perform(post("/api/coupon-policies/amount")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -85,6 +86,7 @@ class CouponControllerUnitTest {
         @Test
         @DisplayName("사용자별 발급 가능 쿠폰 목록 조회 성공")
         void getAvailableCoupons() throws Exception {
+            // given
             CouponPolicy policy = CouponPolicy.builder()
                     .couponPolicyId(TEST_COUPON_POLICY_ID)
                     .couponName(TEST_COUPON_NAME)
@@ -103,6 +105,7 @@ class CouponControllerUnitTest {
             when(couponService.getAvailableCoupons(TEST_USER_ID)).thenReturn(List.of(policy));
             when(couponMapper.toAvailableCouponDtoList(List.of(policy))).thenReturn(List.of(dto));
 
+            // when & then
             mockMvc.perform(get("/api/users/{userId}/coupons/available", TEST_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[0].couponPolicyId").value(TEST_COUPON_POLICY_ID))
@@ -116,6 +119,7 @@ class CouponControllerUnitTest {
         @Test
         @DisplayName("사용자 쿠폰 발급 성공")
         void issueCoupon() throws Exception {
+            // given
             UserCouponDto.IssueRequest request = new UserCouponDto.IssueRequest(TEST_USER_ID, TEST_COUPON_POLICY_ID);
             UserCoupon issuedCoupon = UserCoupon.builder().userCouponId(TEST_USER_COUPON_ID).build();
             UserCouponDto.IssueResponse response = new UserCouponDto.IssueResponse(TEST_USER_COUPON_ID);
@@ -123,6 +127,7 @@ class CouponControllerUnitTest {
             when(couponService.issueCoupon(TEST_USER_ID, TEST_COUPON_POLICY_ID)).thenReturn(issuedCoupon);
             when(couponMapper.toIssueResponseDto(issuedCoupon)).thenReturn(response);
 
+            // when & then
             mockMvc.perform(post("/api/coupons/issue")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -137,6 +142,7 @@ class CouponControllerUnitTest {
         @Test
         @DisplayName("사용자 보유 쿠폰 목록 조회 성공")
         void getUserCoupons() throws Exception {
+            // given
             UserCoupon userCoupon = UserCoupon.builder().userCouponId(TEST_USER_COUPON_ID).build();
             UserCouponDto.UserCoupon userCouponDto = new UserCouponDto.UserCoupon(
                     TEST_USER_COUPON_ID, TEST_USER_ID, TEST_COUPON_NAME, null, TEST_DISCOUNT_VALUE, TEST_MIN_ORDER_AMOUNT, TEST_ISSUE_END
@@ -145,6 +151,7 @@ class CouponControllerUnitTest {
             when(couponService.getUserCoupons(TEST_USER_ID)).thenReturn(List.of(userCoupon));
             when(couponMapper.toUserCouponDtoList(List.of(userCoupon))).thenReturn(List.of(userCouponDto));
 
+            // when & then
             mockMvc.perform(get("/api/users/{userId}/coupons", TEST_USER_ID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.coupons[0].couponId").value(TEST_USER_COUPON_ID))

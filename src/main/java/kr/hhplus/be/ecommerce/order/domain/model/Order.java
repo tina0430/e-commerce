@@ -24,22 +24,22 @@ public class Order {
     private Long orderId;
     private Long userId;
     private Long userCouponId;
-    private Long totalAmount;
-    private Long discountAmount;
-    private Long finalAmount;
-    private OrderStatus status;
+    private Integer totalAmount;
+    private Integer discountAmount;
+    private Integer finalAmount;
+    private OrderStatus orderStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    public void updateStatus(OrderStatus status) {
-        this.status = status;
+    public void updateStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
 
     public void calculateTotalAmount() {
         this.totalAmount = this.orderItems.stream()
-                .mapToLong(OrderItem::getFinalPrice)
+                .mapToInt(OrderItem::getFinalPrice)
                 .sum();
     }
 
@@ -51,7 +51,7 @@ public class Order {
      * @return 생성된 주문
      */
     public static Order createOrder(Long userId, UserCoupon userCoupon, List<OrderItem> orderItems) {
-        long totalAmount = orderItems.stream().mapToLong(OrderItem::getPrice).sum();
+        int totalAmount = orderItems.stream().mapToInt(OrderItem::getPrice).sum();
         OrderCalculator.applyDiscount(userCoupon, orderItems); // todo orderItems를 반환해주는것이 읽기 좋은 코드일까?
         Long userCouponId = userCoupon != null? userCoupon.getUserCouponId() : null;
         LocalDateTime now = LocalDateTime.now();
@@ -59,7 +59,7 @@ public class Order {
                 .userId(userId)
                 .userCouponId(userCouponId)
                 .totalAmount(totalAmount)
-                .status(OrderStatus.PENDING)
+                .orderStatus(OrderStatus.PENDING)
                 .createdAt(now)
                 .updatedAt(now)
                 .orderItems(new ArrayList<>(orderItems))
@@ -74,7 +74,7 @@ public class Order {
             throw new IllegalArgumentException("취소할 수 없는 주문 상태입니다.");
         }
         
-        this.status = OrderStatus.CANCELLED;
+        this.orderStatus = OrderStatus.CANCELLED;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -86,36 +86,36 @@ public class Order {
             throw new IllegalArgumentException("확정할 수 없는 주문 상태입니다.");
         }
         
-        this.status = OrderStatus.CONFIRMED;
+        this.orderStatus = OrderStatus.CONFIRMED;
         this.updatedAt = LocalDateTime.now();
     }
 
     public boolean isPending() {
-        return this.status == OrderStatus.PENDING;
+        return this.orderStatus == OrderStatus.PENDING;
     }
 
     public boolean isConfirmed() {
-        return this.status == OrderStatus.CONFIRMED;
+        return this.orderStatus == OrderStatus.CONFIRMED;
     }
 
     public boolean isShipped() {
-        return this.status == OrderStatus.SHIPPING;
+        return this.orderStatus == OrderStatus.SHIPPING;
     }
 
     public boolean isDelivered() {
-        return this.status == OrderStatus.DELIVERED;
+        return this.orderStatus == OrderStatus.DELIVERED;
     }
 
     public boolean isCancelled() {
-        return this.status == OrderStatus.CANCELLED;
+        return this.orderStatus == OrderStatus.CANCELLED;
     }
 
     public boolean isRefunded() {
-        return this.status == OrderStatus.REFUNDED;
+        return this.orderStatus == OrderStatus.REFUNDED;
     }
 
     public boolean canBeCancelled() {
-        return this.status == OrderStatus.PENDING || this.status == OrderStatus.CONFIRMED;
+        return this.orderStatus == OrderStatus.PENDING || this.orderStatus == OrderStatus.CONFIRMED;
     }
 
     public boolean hasCoupon() {

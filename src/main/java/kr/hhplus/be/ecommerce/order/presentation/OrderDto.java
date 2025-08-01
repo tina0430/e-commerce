@@ -39,18 +39,18 @@ public class OrderDto {
             Integer quantity,
 
             @NotNull(message = "금액은 필수입니다.")
-            Long price
+            Integer price
     ) {}
 
     public record OrderResponse(Long orderId,
                                 Integer totalAmount,
-                                OrderStatus status,
+                                OrderStatus orderStatus,
                                 LocalDateTime createdAt) {}
 
     // O-2 상품 주문 내역 조회
     public record OrderHistoryResponse(Long orderId,
                                        Integer totalAmount,
-                                       OrderStatus status,
+                                       OrderStatus orderStatus,
                                        List<OrderItemResponse> orderItems,
                                        LocalDateTime createdAt) {}
 

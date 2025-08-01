@@ -21,20 +21,20 @@ public class OrderItem {
     private Long productOptionId;
     private String productOptionName;
     private Integer quantity;
-    private Long unitPrice;
-    private Long discountAmount;
-    private Long finalPrice;
+    private Integer unitPrice;
+    private Integer discountAmount;
+    private Integer finalPrice;
 
-    public Long getPrice() {
+    public Integer getPrice() {
         return unitPrice * quantity;
     }
 
-    public void applyDiscount(Long discountAmount) {
+    public void applyDiscount(Integer discountAmount) {
         this.discountAmount = discountAmount;
         this.finalPrice = getPrice() - discountAmount;
     }
 
-    public Long getFinalPrice() {
+    public Integer getFinalPrice() {
         return finalPrice != null ? finalPrice : getPrice();
     }
 

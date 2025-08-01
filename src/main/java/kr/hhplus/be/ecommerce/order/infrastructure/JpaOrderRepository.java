@@ -3,6 +3,7 @@ package kr.hhplus.be.ecommerce.order.infrastructure;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import kr.hhplus.be.ecommerce.common.infrastructure.JpaRepositoryBase;
 import kr.hhplus.be.ecommerce.order.domain.model.OrderEntity;
+import kr.hhplus.be.ecommerce.order.domain.model.OrderStatus;
 import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.EntityManager;
@@ -33,4 +34,10 @@ public class JpaOrderRepository extends JpaRepositoryBase {
         return super.save(orderEntity);
     }
 
+    public List<OrderEntity> findByStatusAndUserId(OrderStatus status, Long userId) {
+        return queryFactory
+                .selectFrom(orderEntity)
+                .where(orderEntity.orderStatus.eq(status).and(orderEntity.userId.eq(userId)))
+                .fetch();
+    }
 }
