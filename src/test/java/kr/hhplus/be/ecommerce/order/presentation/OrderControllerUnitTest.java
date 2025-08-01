@@ -29,8 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("주문 컨트롤러 테스트")
-class OrderControllerTest {
+@DisplayName("주문 컨트롤러 단위 테스트")
+class OrderControllerUnitTest {
 
     private static final Long TEST_USER_ID = 1L;
     private static final Long TEST_ORDER_ID = 1L;
@@ -39,8 +39,8 @@ class OrderControllerTest {
     private static final Long TEST_PRODUCT_OPTION_ID = 1L;
     private static final String TEST_PRODUCT_OPTION_NAME = "상품 옵션 이름";
     private static final Integer TEST_QUANTITY = 2;
-    private static final Long TEST_PRICE = 10000L;
-    private static final Long TEST_TOTAL_AMOUNT = 20000L;
+    private static final Integer TEST_PRICE = 10000;
+    private static final Integer TEST_TOTAL_AMOUNT = 20000;
     private static final String TEST_USER_ID_STRING = "1";
     private static final String TEST_ORDER_ID_STRING = "1";
 
@@ -88,7 +88,7 @@ class OrderControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.orderId").value(TEST_ORDER_ID))
                     .andExpect(jsonPath("$.totalAmount").value(TEST_TOTAL_AMOUNT))
-                    .andExpect(jsonPath("$.status").value(OrderStatus.PENDING.name()));
+                    .andExpect(jsonPath("$.orderStatus").value(OrderStatus.PENDING.name()));
         }
     }
 
@@ -111,7 +111,7 @@ class OrderControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[0].orderId").value(TEST_ORDER_ID))
                     .andExpect(jsonPath("$[0].totalAmount").value(TEST_TOTAL_AMOUNT))
-                    .andExpect(jsonPath("$[0].status").value(OrderStatus.PENDING.name()));
+                    .andExpect(jsonPath("$[0].orderStatus").value(OrderStatus.PENDING.name()));
         }
     }
 
@@ -134,7 +134,7 @@ class OrderControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.orderId").value(TEST_ORDER_ID))
                     .andExpect(jsonPath("$.totalAmount").value(TEST_TOTAL_AMOUNT))
-                    .andExpect(jsonPath("$.status").value(OrderStatus.PENDING.name()));
+                    .andExpect(jsonPath("$.orderStatus").value(OrderStatus.PENDING.name()));
         }
     }
 
@@ -160,7 +160,7 @@ class OrderControllerTest {
                 .userId(TEST_USER_ID)
                 .userCouponId(TEST_COUPON_ID)
                 .totalAmount(TEST_TOTAL_AMOUNT)
-                .status(OrderStatus.PENDING)
+                .orderStatus(OrderStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .orderItems(List.of())
                 .build();
@@ -169,7 +169,7 @@ class OrderControllerTest {
     private OrderDto.OrderResponse createOrderResponse() {
         return new OrderDto.OrderResponse(
                 TEST_ORDER_ID,
-                TEST_TOTAL_AMOUNT.intValue(),
+                TEST_TOTAL_AMOUNT,
                 OrderStatus.PENDING,
                 LocalDateTime.now()
         );
@@ -178,7 +178,7 @@ class OrderControllerTest {
     private OrderDto.OrderHistoryResponse createOrderHistoryResponse() {
         return new OrderDto.OrderHistoryResponse(
                 TEST_ORDER_ID,
-                TEST_TOTAL_AMOUNT.intValue(),
+                TEST_TOTAL_AMOUNT,
                 OrderStatus.PENDING,
                 List.of(),
                 LocalDateTime.now()

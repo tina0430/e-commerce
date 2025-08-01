@@ -42,11 +42,11 @@ class OrderFacadeTest {
     private static final Long TEST_PRODUCT_OPTION_ID = 1L;
     private static final String TEST_PRODUCT_OPTION_NAME = "테스트 옵션";
     private static final Integer TEST_QUANTITY = 2;
-    private static final Long TEST_UNIT_PRICE = 10000L;
-    private static final Long TEST_TOTAL_AMOUNT = 20000L;
-    private static final Long TEST_DISCOUNT_VALUE = 2000L;
-    private static final Long TEST_MAX_DISCOUNT_AMOUNT = 2000L;
-    private static final Long TEST_MIN_ORDER_AMOUNT = 10000L;
+    private static final Integer TEST_UNIT_PRICE = 10000;
+    private static final Integer TEST_TOTAL_AMOUNT = 20000;
+    private static final Integer TEST_DISCOUNT_VALUE = 2000;
+    private static final Integer TEST_MAX_DISCOUNT_AMOUNT = 2000;
+    private static final Integer TEST_MIN_ORDER_AMOUNT = 10000;
 
     @Mock
     private OrderService orderService;
@@ -91,7 +91,7 @@ class OrderFacadeTest {
             assertThat(result).isNotNull();
             assertThat(result.getOrderId()).isEqualTo(TEST_ORDER_ID);
             assertThat(result.getUserId()).isEqualTo(TEST_USER_ID);
-            assertThat(result.getStatus()).isEqualTo(OrderStatus.PENDING);
+            assertThat(result.getOrderStatus()).isEqualTo(OrderStatus.PENDING);
 
             verify(couponService).validateCoupon(TEST_COUPON_ID, TEST_USER_ID);
             verify(productService).validateAndReduceStock(orderItems);
@@ -218,7 +218,7 @@ class OrderFacadeTest {
                 .productOptionName(TEST_PRODUCT_OPTION_NAME)
                 .quantity(TEST_QUANTITY)
                 .unitPrice(TEST_UNIT_PRICE)
-                .discountAmount(0L)
+                .discountAmount(0)
                 .finalPrice(TEST_UNIT_PRICE * TEST_QUANTITY)
                 .build();
 
@@ -235,7 +235,7 @@ class OrderFacadeTest {
                 .discountValue(TEST_DISCOUNT_VALUE)
                 .maxDiscountAmount(TEST_MAX_DISCOUNT_AMOUNT)
                 .minOrderAmount(TEST_MIN_ORDER_AMOUNT)
-                .status(UserCouponStatus.AVAILABLE)
+                .usageStatus(UserCouponStatus.AVAILABLE)
                 .startAt(LocalDateTime.now().minusDays(1))
                 .endAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())
@@ -249,9 +249,9 @@ class OrderFacadeTest {
                 .userId(TEST_USER_ID)
                 .userCouponId(TEST_COUPON_ID)
                 .totalAmount(TEST_TOTAL_AMOUNT)
-                .discountAmount(0L)
+                .discountAmount(0)
                 .finalAmount(TEST_TOTAL_AMOUNT)
-                .status(OrderStatus.PENDING)
+                .orderStatus(OrderStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .orderItems(orderItems)
