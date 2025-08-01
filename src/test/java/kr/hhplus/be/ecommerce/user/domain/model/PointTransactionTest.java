@@ -18,19 +18,19 @@ class PointTransactionTest {
     // 테스트 상수 정의
     private static final Long TEST_TRANSACTION_ID = 1L;
     private static final Long TEST_USER_ID = 1L;
-    private static final Long TEST_AMOUNT = 5000L;
-    private static final Long TEST_BALANCE = 15000L;
+    private static final Integer TEST_AMOUNT = 5000;
+    private static final Integer TEST_BALANCE = 15000;
     private static final Long TEST_ANOTHER_TRANSACTION_ID = 2L;
     private static final Long TEST_ANOTHER_USER_ID = 2L;
-    private static final Long TEST_ANOTHER_AMOUNT = 3000L;
-    private static final Long TEST_ANOTHER_BALANCE = 7000L;
-    private static final Long TEST_CHARGE_AMOUNT = 10000L;
-    private static final Long TEST_CHARGE_BALANCE = 20000L;
-    private static final Long TEST_USE_AMOUNT = 5000L;
-    private static final Long TEST_USE_BALANCE = 5000L;
-    private static final Long TEST_ZERO_AMOUNT = 0L;
-    private static final Long TEST_ZERO_BALANCE = 10000L;
-    private static final Long TEST_SMALL_AMOUNT = 1000L;
+    private static final Integer TEST_ANOTHER_AMOUNT = 3000;
+    private static final Integer TEST_ANOTHER_BALANCE = 7000;
+    private static final Integer TEST_CHARGE_AMOUNT = 10000;
+    private static final Integer TEST_CHARGE_BALANCE = 20000;
+    private static final Integer TEST_USE_AMOUNT = 5000;
+    private static final Integer TEST_USE_BALANCE = 5000;
+    private static final Integer TEST_ZERO_AMOUNT = 0;
+    private static final Integer TEST_ZERO_BALANCE = 10000;
+    private static final Integer TEST_SMALL_AMOUNT = 1000;
 
     @BeforeEach
     void setUp() {
@@ -184,9 +184,9 @@ class PointTransactionTest {
         @DisplayName("거래 후 잔액이 올바른지 확인한다")
         void validateBalanceAfterTransaction() {
             // given
-            long initialBalance = TEST_ZERO_BALANCE;
-            long transactionAmount = TEST_ANOTHER_AMOUNT;
-            long expectedBalance = initialBalance + transactionAmount; // 충전이므로 더하기
+            int initialBalance = TEST_ZERO_BALANCE;
+            int transactionAmount = TEST_ANOTHER_AMOUNT;
+            int expectedBalance = initialBalance + transactionAmount; // 충전이므로 더하기
 
             PointTransaction transaction = PointTransaction.builder()
                     .transactionType(TransactionType.CHARGE)
@@ -202,9 +202,9 @@ class PointTransactionTest {
         @DisplayName("사용 거래 후 잔액이 올바른지 확인한다")
         void validateBalanceAfterUseTransaction() {
             // given
-            long initialBalance = TEST_ZERO_BALANCE;
-            long transactionAmount = TEST_ANOTHER_AMOUNT;
-            long expectedBalance = initialBalance - transactionAmount; // 사용이므로 빼기
+            int initialBalance = TEST_ZERO_BALANCE;
+            int transactionAmount = TEST_ANOTHER_AMOUNT;
+            int expectedBalance = initialBalance - transactionAmount; // 사용이므로 빼기
 
             PointTransaction transaction = PointTransaction.builder()
                     .transactionType(TransactionType.USE)

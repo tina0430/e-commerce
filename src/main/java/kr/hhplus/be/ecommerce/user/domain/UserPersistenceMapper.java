@@ -31,7 +31,7 @@ public interface UserPersistenceMapper {
             return;
         }
         
-        entity.setBalance(domain.getBalance());
+        entity.setCurrentBalance(domain.getCurrentBalance());
         entity.setUpdatedAt(domain.getUpdatedAt());
     }
 

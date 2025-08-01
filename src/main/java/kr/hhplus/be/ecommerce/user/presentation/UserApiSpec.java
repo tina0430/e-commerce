@@ -20,7 +20,7 @@ public interface UserApiSpec {
      * @return 포인트 잔액 응답 DTO
      */
     @Operation(summary = "잔액 조회", description = "특정 사용자의 현재 포인트 잔액을 조회합니다.")
-    ResponseEntity<PointDto.Response> getBalance(@PathVariable("userId") @Valid UserId userId);
+    ResponseEntity<PointDto.Response> getCurrentBalance(@PathVariable("userId") @Valid UserId userId);
 
     /**
      * B-2 잔액 충전

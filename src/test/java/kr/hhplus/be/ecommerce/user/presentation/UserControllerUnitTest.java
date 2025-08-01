@@ -21,7 +21,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
-class UserControllerTest {
+@DisplayName("사용자 컨트롤러 단위 테스트")
+class UserControllerUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -37,32 +38,24 @@ class UserControllerTest {
 
     // 테스트 상수 정의
     private static final Long TEST_USER_ID = 1L;
-    private static final Long TEST_CHARGE_AMOUNT = 5000L;
-    private static final Long TEST_USE_AMOUNT = 3000L;
-    private static final Long TEST_BALANCE = 10000L;
+    private static final Integer TEST_CHARGE_AMOUNT = 5000;
+    private static final Integer TEST_USE_AMOUNT = 3000;
+    private static final Integer TEST_BALANCE = 10000;
     private static final Long TEST_TRANSACTION_ID = 1L;
-    private static final Long TEST_TRANSACTION_AMOUNT = 3000L;
-    private static final Long TEST_TRANSACTION_BALANCE = 5000L;
+    private static final Integer TEST_TRANSACTION_AMOUNT = 3000;
+    private static final Integer TEST_TRANSACTION_BALANCE = 5000;
 
     @Test
     @DisplayName("포인트 잔액을 조회한다")
     void getBalance() throws Exception {
         // given
-        User userPoint = User.builder()
-                .userId(TEST_USER_ID)
-                .balance(TEST_BALANCE)
-                .build();
-
-        PointDto.Response expectedResponse = new PointDto.Response(TEST_USER_ID, TEST_BALANCE);
-
-        when(userService.getBalance(TEST_USER_ID)).thenReturn(TEST_BALANCE);
-        when(userDtoMapper.toPointResponseDto(userPoint)).thenReturn(expectedResponse);
+        when(userService.getCurrentBalance(TEST_USER_ID)).thenReturn(TEST_BALANCE);
 
         // when & then
-        mockMvc.perform(get("/api/users/{userId}/point", TEST_USER_ID))
+        mockMvc.perform(get("/api/{userId}/balance", TEST_USER_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value(TEST_USER_ID))
-                .andExpect(jsonPath("$.balance").value(TEST_BALANCE));
+                .andExpect(jsonPath("$.currentBalance").value(TEST_BALANCE));
     }
 
     @Test
@@ -72,19 +65,17 @@ class UserControllerTest {
         PointDto.ChargeRequest request = new PointDto.ChargeRequest(TEST_USER_ID, TEST_CHARGE_AMOUNT);
         User userPoint = User.builder()
                 .userId(TEST_USER_ID)
-                .balance(TEST_CHARGE_AMOUNT)
+                .currentBalance(TEST_CHARGE_AMOUNT)
                 .build();
-        PointDto.Response expectedResponse = new PointDto.Response(TEST_USER_ID, TEST_CHARGE_AMOUNT);
 
         when(userService.chargePoint(TEST_USER_ID, TEST_CHARGE_AMOUNT)).thenReturn(userPoint);
-        when(userDtoMapper.toPointResponseDto(userPoint)).thenReturn(expectedResponse);
 
         // when & then
-        mockMvc.perform(post("/api/users/{userId}/point/charge", TEST_USER_ID)
+        mockMvc.perform(post("/api/{userId}/point/charge", TEST_USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.balance").value(TEST_CHARGE_AMOUNT));
+                .andExpect(jsonPath("$.currentBalance").value(TEST_CHARGE_AMOUNT));
     }
 
     @Test
@@ -94,19 +85,17 @@ class UserControllerTest {
         PointDto.UseRequest request = new PointDto.UseRequest(TEST_USER_ID, TEST_USE_AMOUNT);
         User userPoint = User.builder()
                 .userId(TEST_USER_ID)
-                .balance(TEST_TRANSACTION_BALANCE)
+                .currentBalance(TEST_TRANSACTION_BALANCE)
                 .build();
-        PointDto.Response expectedResponse = new PointDto.Response(TEST_USER_ID, TEST_TRANSACTION_BALANCE);
 
         when(userService.usePoint(TEST_USER_ID, TEST_USE_AMOUNT)).thenReturn(userPoint);
-        when(userDtoMapper.toPointResponseDto(userPoint)).thenReturn(expectedResponse);
 
         // when & then
-        mockMvc.perform(patch("/api/users/{userId}/point/use", TEST_USER_ID)
+        mockMvc.perform(post("/api/{userId}/point/use", TEST_USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.balance").value(TEST_TRANSACTION_BALANCE));
+                .andExpect(jsonPath("$.currentBalance").value(TEST_TRANSACTION_BALANCE));
     }
 
     @Test
@@ -141,4 +130,4 @@ class UserControllerTest {
                 .andExpect(jsonPath("$[0].transactionType").value(transactionType.name()))
                 .andExpect(jsonPath("$[0].amount").value(TEST_TRANSACTION_AMOUNT));
     }
-} 
+}
