@@ -21,18 +21,19 @@ public class PaymentService {
     /**
      * 결제를 생성합니다.
      * @param orderId 주문 ID
-     * @param originalPrice 원가
+     * @param totalAmount 총 금액
      * @param discountAmount 할인 금액
+     * @param finalAmount 최종 금액
      * @return 생성된 결제
      */
     @Transactional
-    public Payment createPayment(Long orderId, Long originalPrice, Long discountAmount, Long finalPrice) {
+    public Payment createPayment(Long orderId, Integer totalAmount, Integer discountAmount, Integer finalAmount) {
         PaymentEntity paymentEntity = PaymentEntity.builder()
                 .orderId(orderId)
-                .originalPrice(originalPrice)
+                .totalAmount(totalAmount)
                 .discountAmount(discountAmount)
-                .finalPrice(finalPrice)
-                .status(PaymentStatus.PENDING)
+                .finalAmount(finalAmount)
+                .paymentStatus(PaymentStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .build();
         return paymentMapper.toPayment(paymentRepository.save(paymentEntity));

@@ -8,10 +8,10 @@ public class PaymentDto {
 
     // O-3 상품 주문 결제
     public record PaymentResponse(Long paymentId,
-                                  Long originalPrice,
-                                  Long discountAmount,
-                                  Integer finalPrice,
-                                  PaymentStatus status,
+                                  Integer totalAmount,
+                                  Integer discountAmount,
+                                  Integer finalAmount,
+                                  PaymentStatus paymentStatus,
                                   LocalDateTime createdAt) {
 
     }

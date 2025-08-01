@@ -32,7 +32,7 @@ public class PaymentFacade {
         log.info("결제 처리 시작 - userId: {}, orderId: {}", userId, orderId);
         Order order = orderService.getOrder(userId, orderId);
         try {
-            Long requiredAmount = order.getTotalAmount();
+            Integer requiredAmount = order.getTotalAmount();
             userService.usePoint(userId, requiredAmount);
             log.info("포인트 차감 완료 - userId: {}, amount: {}", userId, requiredAmount);
             Payment payment = paymentService.createPayment(orderId, order.getTotalAmount(), order.getDiscountAmount(), order.getFinalAmount());
