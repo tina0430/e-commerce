@@ -41,9 +41,12 @@ public class CouponService {
     @Transactional
     public UserCoupon issueCoupon(Long userId, Long couponPolicyId) {
         CouponPolicy couponPolicy = getValidCouponPolicy(couponPolicyId);
-        validateNotAlreadyIssued(userId, couponPolicy);
+        List<UserCouponEntity> userCouponEntities = couponRepository.findCouponsByUserId(userId);
+        List<UserCoupon> userCoupons = couponMapper.toUserCouponList(userCouponEntities);
+        couponPolicy.issue(userCoupons);
         UserCoupon userCoupon = UserCoupon.issue(userId, couponPolicy);
         UserCouponEntity savedEntity = couponRepository.save(couponMapper.toUserCouponEntity(userCoupon));
+        couponMapper.applyToEntity(couponPolicy, couponRepository.findPolicyById(couponPolicyId).orElseThrow());
         return couponMapper.toUserCoupon(savedEntity);
     }
 
@@ -55,16 +58,6 @@ public class CouponService {
             throw new BusinessException(BusinessError.COUPON_POLICY_UNAVAILABLE);
         }
         return policy;
-    }
-
-    private void validateNotAlreadyIssued(Long userId, CouponPolicy couponPolicy) {
-        List<UserCouponEntity> issuedEntities = couponRepository.findCouponsByUserId(userId);
-        boolean alreadyIssued = issuedEntities.stream()
-                .map(couponMapper::toUserCoupon)
-                .anyMatch(c -> c.isIssuedFrom(couponPolicy));
-        if (alreadyIssued) {
-            throw new BusinessException(BusinessError.COUPON_POLICY_ALREADY_ISSUED);
-        }
     }
 
     /**

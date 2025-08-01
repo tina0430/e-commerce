@@ -22,7 +22,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_coupons")
+@Table(name = "tb_user_coupon")
 @Getter
 @Setter
 @Builder
@@ -50,17 +50,17 @@ public class UserCouponEntity implements EntityBase {
     private DiscountType discountType;
 
     @Column(name = "discount_value", nullable = false)
-    private Long discountValue;
+    private Integer discountValue;
 
     @Column(name = "max_discount_amount")
-    private Long maxDiscountAmount;
+    private Integer maxDiscountAmount;
 
     @Column(name = "min_order_amount")
-    private Long minOrderAmount;
+    private Integer minOrderAmount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private UserCouponStatus status;
+    @Column(name = "usage_status", nullable = false)
+    private UserCouponStatus usageStatus;
 
     @Column(name = "start_at", nullable = false)
     private LocalDateTime startAt;

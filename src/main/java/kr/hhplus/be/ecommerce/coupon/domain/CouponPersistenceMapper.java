@@ -45,7 +45,7 @@ public interface CouponPersistenceMapper {
         entity.setDiscountValue(domain.getDiscountValue());
         entity.setMaxDiscountAmount(domain.getMaxDiscountAmount());
         entity.setMinOrderAmount(domain.getMinOrderAmount());
-        entity.setStatus(domain.getStatus());
+        entity.setUsageStatus(domain.getUsageStatus());
         entity.setStartAt(domain.getStartAt());
         entity.setEndAt(domain.getEndAt());
         entity.setUpdatedAt(domain.getUpdatedAt());
@@ -64,7 +64,7 @@ public interface CouponPersistenceMapper {
         if (domain == null || entity == null) {
             return;
         }
-        entity.setStatus(domain.getStatus());
+        entity.setCouponStatus(domain.getCouponStatus());
         entity.setTotalQuantity(domain.getTotalQuantity());
         entity.setRemainingQuantity(domain.getRemainingQuantity());
         entity.setUpdatedAt(domain.getUpdatedAt());
