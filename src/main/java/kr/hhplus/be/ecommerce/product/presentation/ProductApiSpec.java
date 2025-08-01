@@ -2,9 +2,12 @@ package kr.hhplus.be.ecommerce.product.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.hhplus.be.ecommerce.common.dto.PageResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Tag(name = "상품", description = "상품 관련 API")
@@ -16,7 +19,19 @@ public interface ProductApiSpec {
      * @return 상품 목록 응답 DTO
      */
     @Operation(summary = "상품 목록 조회", description = "모든 상품 목록을 조회합니다.")
-    ResponseEntity<List<ProductDto.ProductResponse>> getProducts();
+    ResponseEntity<PageResponse<ProductDto.ProductResponse>> getProducts();
+
+    /**
+     * P-3 상품 목록 페이징 조회
+     * 상품 목록을 페이징으로 조회합니다.
+     * @param cursor 커서 (날짜 기준, ISO 8601 형식)
+     * @param size 페이지 크기 (기본값: 30)
+     * @return 페이징된 상품 목록 응답 DTO
+     */
+    @Operation(summary = "상품 목록 페이징 조회", description = "상품 목록을 페이징으로 조회합니다.")
+    ResponseEntity<PageResponse<ProductDto.ProductResponse>> getProductsWithPaging(
+            @RequestParam(value = "cursor", required = false) LocalDateTime cursor,
+            @RequestParam(value = "size", defaultValue = "30") Integer size);
 
     /**
      * P-1 단일 상품 조회
