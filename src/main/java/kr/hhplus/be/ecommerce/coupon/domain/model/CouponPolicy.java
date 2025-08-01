@@ -51,6 +51,9 @@ public class CouponPolicy {
      * 쿠폰 발급 처리
      */
     public void issue(List<UserCoupon> issuedCoupon) {
+        if (!isAvailableForIssue()) {
+            throw new BusinessException(BusinessError.COUPON_POLICY_UNAVAILABLE);
+        }
         boolean alreadyIssued = issuedCoupon.stream().anyMatch(c -> c.isIssuedFrom(this));
         if (alreadyIssued) {
             throw new BusinessException(BusinessError.COUPON_POLICY_ALREADY_ISSUED);
