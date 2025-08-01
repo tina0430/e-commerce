@@ -57,7 +57,7 @@ def generate_all_sql_files(user_count=1000, product_count=100,
     print("PRODUCT 데이터 생성 중...")
     products = generate_products(product_count)
     product_sql = generate_products_insert_sql(products)
-    save_sql_to_file(product_sql, f"V3_insert_product.sql")
+    save_sql_to_file(product_sql, f"V3__insert_product.sql")
     
     # 3. PRODUCT_OPTION
     print("PRODUCT_OPTION 데이터 생성 중...")
