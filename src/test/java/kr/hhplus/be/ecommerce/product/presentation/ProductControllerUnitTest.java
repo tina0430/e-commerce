@@ -17,7 +17,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProductController.class)
-class ProductControllerTest {
+@DisplayName("상품 컨트롤러 단위 테스트")
+class ProductControllerUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -90,4 +91,41 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.productName").value(productName));
     }
 
+    @Test
+    @DisplayName("상위 판매 상품 목록을 조회한다")
+    void getTopSellingProducts() throws Exception {
+        // given
+        Long productId1 = 1L;
+        Long productId2 = 2L;
+        String productName1 = "인기 상품 1";
+        String productName2 = "인기 상품 2";
+        List<Product> topProducts = List.of(
+            Product.builder()
+                .productId(productId1)
+                .productName(productName1)
+                .createdAt(LocalDateTime.now())
+                .build(),
+            Product.builder()
+                .productId(productId1)
+                .productName(productName2)
+                .createdAt(LocalDateTime.now())
+                .build()
+        );
+
+        List<ProductDto.ProductResponse> expectedResponse = List.of(
+            new ProductDto.ProductResponse(productId1, productName1, List.of()),
+            new ProductDto.ProductResponse(productId2, productName2, List.of())
+        );
+
+        when(productService.getTopSellingProducts()).thenReturn(topProducts);
+        when(productDtoMapper.toProductResponseDtoList(topProducts)).thenReturn(expectedResponse);
+
+        // when & then
+        mockMvc.perform(get("/api/products/top-selling"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].productId").value(productId1))
+                .andExpect(jsonPath("$[0].productName").value(productName1))
+                .andExpect(jsonPath("$[1].productId").value(productId2))
+                .andExpect(jsonPath("$[1].productName").value(productName2));
+    }
 } 

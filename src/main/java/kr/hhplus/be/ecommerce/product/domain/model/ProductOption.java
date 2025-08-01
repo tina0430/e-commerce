@@ -23,8 +23,8 @@ public class ProductOption {
     private Long productId;
     private String productOptionName;
     private Integer quantity;
-    private Long price;
-    private LocalDateTime createdAt;
+    private Integer price;
+    private LocalDateTime updatedAt;
 
     public boolean isAvailable() {
         return this.quantity > 0;

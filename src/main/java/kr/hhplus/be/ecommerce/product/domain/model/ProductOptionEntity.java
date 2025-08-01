@@ -7,14 +7,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "product_options")
+@Table(name = "tb_product_option")
 @Setter
 @Getter
 @Builder
@@ -31,18 +30,14 @@ public class ProductOptionEntity implements EntityBase {
     @Column(name = "product_id", nullable = false)
     private Long productId;
 
-    @Column(name = "product_potion_name", nullable = false)
+    @Column(name = "product_option_name", nullable = false)
     private String productOptionName;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
     @Column(name = "price", nullable = false)
-    private Long price;
-
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Integer price;
 
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)

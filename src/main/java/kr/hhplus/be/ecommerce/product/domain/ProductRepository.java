@@ -13,6 +13,7 @@ public interface ProductRepository {
      */
     Optional<ProductEntity> findProductById(Long productId);
     List<ProductEntity> findAll();
+    ProductEntity save(ProductEntity productEntity);
 
     /**
      * 상품 옵션

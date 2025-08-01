@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,8 +25,8 @@ class ProductTest {
                 .productId(1L)
                 .productOptionName("옵션 1")
                 .quantity(10)
-                .price(10000L)
-                .createdAt(LocalDateTime.now())
+                .price(10000)
+                .updatedAt(LocalDateTime.now())
                 .build();
 
         option2 = ProductOption.builder()
@@ -33,8 +34,8 @@ class ProductTest {
                 .productId(1L)
                 .productOptionName("옵션 2")
                 .quantity(5)
-                .price(15000L)
-                .createdAt(LocalDateTime.now())
+                .price(15000)
+                .updatedAt(LocalDateTime.now())
                 .build();
 
         product = Product.builder()
@@ -137,7 +138,7 @@ class ProductTest {
             // then
             assertThat(foundOption).isNotNull();
             assertThat(foundOption.getProductOptionName()).isEqualTo("옵션 1");
-            assertThat(foundOption.getPrice()).isEqualTo(10000L);
+            assertThat(foundOption.getPrice()).isEqualTo(10000);
         }
 
         @Test
@@ -166,12 +167,12 @@ class ProductTest {
         void findLowestPriceOption() {
             // when
             ProductOption lowestPriceOption = product.getProductOptions().stream()
-                    .min((o1, o2) -> o1.getPrice().compareTo(o2.getPrice()))
+                    .min(Comparator.comparing(ProductOption::getPrice))
                     .orElse(null);
 
             // then
             assertThat(lowestPriceOption).isNotNull();
-            assertThat(lowestPriceOption.getPrice()).isEqualTo(10000L);
+            assertThat(lowestPriceOption.getPrice()).isEqualTo(10000);
             assertThat(lowestPriceOption.getProductOptionName()).isEqualTo("옵션 1");
         }
 
@@ -180,12 +181,12 @@ class ProductTest {
         void findHighestPriceOption() {
             // when
             ProductOption highestPriceOption = product.getProductOptions().stream()
-                    .max((o1, o2) -> o1.getPrice().compareTo(o2.getPrice()))
+                    .max(Comparator.comparing(ProductOption::getPrice))
                     .orElse(null);
 
             // then
             assertThat(highestPriceOption).isNotNull();
-            assertThat(highestPriceOption.getPrice()).isEqualTo(15000L);
+            assertThat(highestPriceOption.getPrice()).isEqualTo(15000);
             assertThat(highestPriceOption.getProductOptionName()).isEqualTo("옵션 2");
         }
 
@@ -204,8 +205,8 @@ class ProductTest {
                     .orElse(0L);
 
             // then
-            assertThat(minPrice).isEqualTo(10000L);
-            assertThat(maxPrice).isEqualTo(15000L);
+            assertThat(minPrice).isEqualTo(10000);
+            assertThat(maxPrice).isEqualTo(15000);
         }
     }
 
@@ -233,7 +234,7 @@ class ProductTest {
                     .productId(1L)
                     .productOptionName("재고 부족 옵션")
                     .quantity(0)
-                    .price(20000L)
+                    .price(20000)
                     .build();
 
             Product productWithLowStock = Product.builder()

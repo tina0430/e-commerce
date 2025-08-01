@@ -65,8 +65,8 @@ class ProductServiceTest {
                 .productId(1L)
                 .productOptionName("테스트 옵션")
                 .quantity(10)
-                .price(10000L)
-                .createdAt(LocalDateTime.now())
+                .price(10000)
+                .updatedAt(LocalDateTime.now())
                 .build();
 
         productOption = ProductOption.builder()
@@ -74,8 +74,8 @@ class ProductServiceTest {
                 .productId(1L)
                 .productOptionName("테스트 옵션")
                 .quantity(10)
-                .price(10000L)
-                .createdAt(LocalDateTime.now())
+                .price(10000)
+                .updatedAt(LocalDateTime.now())
                 .build();
 
         orderItem = OrderItem.builder()

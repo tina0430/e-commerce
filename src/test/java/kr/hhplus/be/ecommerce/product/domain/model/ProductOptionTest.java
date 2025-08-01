@@ -24,8 +24,8 @@ class ProductOptionTest {
                 .productId(1L)
                 .productOptionName("테스트 옵션")
                 .quantity(10)
-                .price(10000L)
-                .createdAt(LocalDateTime.now())
+                .price(10000)
+                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
@@ -225,8 +225,8 @@ class ProductOptionTest {
                     .productId(1L)
                     .productOptionName("새로운 옵션")
                     .quantity(20)
-                    .price(15000L)
-                    .createdAt(LocalDateTime.now())
+                    .price(15000)
+                    .updatedAt(LocalDateTime.now())
                     .build();
 
             // then
@@ -234,8 +234,8 @@ class ProductOptionTest {
             assertThat(option.getProductId()).isEqualTo(1L);
             assertThat(option.getProductOptionName()).isEqualTo("새로운 옵션");
             assertThat(option.getQuantity()).isEqualTo(20);
-            assertThat(option.getPrice()).isEqualTo(15000L);
-            assertThat(option.getCreatedAt()).isNotNull();
+            assertThat(option.getPrice()).isEqualTo(15000);
+            assertThat(option.getUpdatedAt()).isNotNull();
         }
 
         @Test
@@ -250,7 +250,7 @@ class ProductOptionTest {
             assertThat(option.getProductOptionName()).isNull();
             assertThat(option.getQuantity()).isNull();
             assertThat(option.getPrice()).isNull();
-            assertThat(option.getCreatedAt()).isNull();
+            assertThat(option.getUpdatedAt()).isNull();
         }
     }
 } 
