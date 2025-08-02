@@ -24,10 +24,10 @@ public class UserCoupon {
     private Long userId;
     private String couponName;
     private DiscountType discountType;
-    private Long discountValue;
-    private Long maxDiscountAmount;
-    private Long minOrderAmount;
-    private UserCouponStatus status;
+    private Integer discountValue;
+    private Integer maxDiscountAmount;
+    private Integer minOrderAmount;
+    private UserCouponStatus usageStatus;
     private LocalDateTime startAt;
     private LocalDateTime endAt;
     private LocalDateTime createdAt;
@@ -40,16 +40,16 @@ public class UserCoupon {
      */
     public boolean isAvailable() {
         LocalDateTime now = LocalDateTime.now();
-        if (status == UserCouponStatus.EXPIRED || now.isAfter(this.endAt)) {
+        if (usageStatus == UserCouponStatus.EXPIRED || now.isAfter(this.endAt)) {
             throw new BusinessException(BusinessError.USER_COUPON_EXPIRED);
         }
-        if (status == UserCouponStatus.USED) {
+        if (usageStatus == UserCouponStatus.USED) {
             throw new BusinessException(BusinessError.USER_COUPON_ALREADY_USED);
         }
         if (now.isBefore(this.startAt)) {
             throw new BusinessException(BusinessError.USER_COUPON_ALREADY_USED);
         }
-        return this.status == UserCouponStatus.AVAILABLE &&
+        return this.usageStatus == UserCouponStatus.AVAILABLE &&
                now.isAfter(this.startAt) && 
                now.isBefore(this.endAt);
     }
@@ -82,7 +82,7 @@ public class UserCoupon {
      */
     public void use() {
         if (isAvailable()) {
-            this.status = UserCouponStatus.USED;
+            this.usageStatus = UserCouponStatus.USED;
             this.updatedAt = LocalDateTime.now();
         }
     }
@@ -91,7 +91,7 @@ public class UserCoupon {
      * 쿠폰 만료 처리
      */
     public void expire() {
-        this.status = UserCouponStatus.EXPIRED;
+        this.usageStatus = UserCouponStatus.EXPIRED;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -99,8 +99,8 @@ public class UserCoupon {
      * 쿠폰 상태 복원 (사용 완료 → 사용 가능)
      */
     public void restore() {
-        if (this.status == UserCouponStatus.USED) {
-            this.status = UserCouponStatus.AVAILABLE;
+        if (this.usageStatus == UserCouponStatus.USED) {
+            this.usageStatus = UserCouponStatus.AVAILABLE;
             this.updatedAt = LocalDateTime.now();
         }
     }
@@ -119,11 +119,12 @@ public class UserCoupon {
         return UserCoupon.builder()
                 .userId(userId)
                 .couponPolicyId(couponPolicy.getCouponPolicyId())
+                .couponName(couponPolicy.getCouponName())
                 .minOrderAmount(couponPolicy.getMinOrderAmount())
                 .maxDiscountAmount(couponPolicy.getMaxDiscountAmount())
                 .discountType(couponPolicy.getDiscountType())
                 .discountValue(couponPolicy.getDiscountValue())
-                .status(UserCouponStatus.AVAILABLE)
+                .usageStatus(UserCouponStatus.AVAILABLE)
                 .startAt(now)
                 .endAt(endAt)
                 .createdAt(now)
@@ -136,18 +137,18 @@ public class UserCoupon {
      * @param orderAmount 주문 금액
      * @return 할인 금액
      */
-    public long calculateDiscountAmount(int orderAmount) {
+    public int calculateDiscountAmount(int orderAmount) {
         if (!isAvailable()) {
             return 0;
         }
         if (orderAmount < minOrderAmount) {
             return 0;
         }
-        long discountAmount;
+        int discountAmount;
         if (discountType == DiscountType.RATE) {
             discountAmount = (orderAmount * discountValue) / 100;
         } else {
-            discountAmount = maxDiscountAmount;
+            discountAmount = discountValue;
         }
         if (maxDiscountAmount != null && discountAmount > maxDiscountAmount) {
             discountAmount = maxDiscountAmount;

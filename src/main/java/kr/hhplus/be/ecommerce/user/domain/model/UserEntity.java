@@ -14,7 +14,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "tb_user")
 @Getter
 @Setter
 @Builder
@@ -28,11 +28,11 @@ public class UserEntity implements EntityBase {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "name", nullable = false, length = 100)
+    @Column(name = "user_name", nullable = false, length = 100)
     private String userName;
 
-    @Column(name = "balance", nullable = false)
-    private Long balance;
+    @Column(name = "current_balance", nullable = false)
+    private Integer currentBalance;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)

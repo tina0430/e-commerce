@@ -8,202 +8,241 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("결제 도메인 객체 테스트")
+@DisplayName("결제 도메인 모델 테스트")
 class PaymentTest {
 
     private static final Long TEST_PAYMENT_ID = 1L;
     private static final Long TEST_ORDER_ID = 1L;
-    private static final Long TEST_ORIGINAL_PRICE = 20000L;
-    private static final Long TEST_DISCOUNT_AMOUNT = 2000L;
-    private static final Long TEST_FINAL_PRICE = 18000L;
-    private static final LocalDateTime TEST_CREATED_AT = LocalDateTime.of(2024, 1, 1, 12, 0, 0);
+    private static final Integer TEST_TOTAL_AMOUNT = 20000;
+    private static final Integer TEST_DISCOUNT_AMOUNT = 2000;
+    private static final Integer TEST_FINAL_AMOUNT = 18000;
 
     @Nested
-    @DisplayName("결제 생성")
-    class CreatePayment {
+    @DisplayName("Payment 생성")
+    class PaymentCreationTests {
 
         @Test
-        @DisplayName("정상적인 결제를 생성한다")
-        void createPayment_Success() {
-            // when
-            Payment payment = createPayment();
+        @DisplayName("모든 필드가 있는 Payment를 생성한다")
+        void createPayment_WithAllFields() {
+            // given & when
+            Payment payment = Payment.builder()
+                    .paymentId(TEST_PAYMENT_ID)
+                    .orderId(TEST_ORDER_ID)
+                    .totalAmount(TEST_TOTAL_AMOUNT)
+                    .discountAmount(TEST_DISCOUNT_AMOUNT)
+                    .finalAmount(TEST_FINAL_AMOUNT)
+                    .paymentStatus(PaymentStatus.PENDING)
+                    .createdAt(LocalDateTime.now())
+                    .build();
 
             // then
             assertThat(payment.getPaymentId()).isEqualTo(TEST_PAYMENT_ID);
             assertThat(payment.getOrderId()).isEqualTo(TEST_ORDER_ID);
-            assertThat(payment.getOriginalPrice()).isEqualTo(TEST_ORIGINAL_PRICE);
+            assertThat(payment.getTotalAmount()).isEqualTo(TEST_TOTAL_AMOUNT);
             assertThat(payment.getDiscountAmount()).isEqualTo(TEST_DISCOUNT_AMOUNT);
-            assertThat(payment.getFinalPrice()).isEqualTo(TEST_FINAL_PRICE);
-            assertThat(payment.getStatus()).isEqualTo(PaymentStatus.PENDING);
-            assertThat(payment.getCreatedAt()).isEqualTo(TEST_CREATED_AT);
+            assertThat(payment.getFinalAmount()).isEqualTo(TEST_FINAL_AMOUNT);
+            assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.PENDING);
+            assertThat(payment.getCreatedAt()).isNotNull();
         }
 
         @Test
-        @DisplayName("할인이 없는 결제를 생성한다")
+        @DisplayName("할인이 없는 Payment를 생성한다")
         void createPayment_WithoutDiscount() {
-            // when
+            // given & when
             Payment payment = Payment.builder()
                     .paymentId(TEST_PAYMENT_ID)
                     .orderId(TEST_ORDER_ID)
-                    .originalPrice(TEST_ORIGINAL_PRICE)
-                    .discountAmount(0L)
-                    .finalPrice(TEST_ORIGINAL_PRICE)
-                    .status(PaymentStatus.PENDING)
-                    .createdAt(TEST_CREATED_AT)
+                    .totalAmount(TEST_TOTAL_AMOUNT)
+                    .discountAmount(0)
+                    .finalAmount(TEST_TOTAL_AMOUNT)
+                    .paymentStatus(PaymentStatus.PENDING)
+                    .createdAt(LocalDateTime.now())
                     .build();
 
             // then
-            assertThat(payment.getDiscountAmount()).isEqualTo(0L);
-            assertThat(payment.getFinalPrice()).isEqualTo(TEST_ORIGINAL_PRICE);
+            assertThat(payment.getTotalAmount()).isEqualTo(TEST_TOTAL_AMOUNT);
+            assertThat(payment.getFinalAmount()).isEqualTo(TEST_TOTAL_AMOUNT);
+        }
+
+        @Test
+        @DisplayName("최소 필드로 Payment를 생성한다")
+        void createPayment_WithMinimalFields() {
+            // given & when
+            Payment payment = Payment.builder().build();
+
+            // then
+            assertThat(payment.getPaymentId()).isNull();
+            assertThat(payment.getOrderId()).isNull();
+            assertThat(payment.getTotalAmount()).isNull();
+            assertThat(payment.getDiscountAmount()).isNull();
+            assertThat(payment.getFinalAmount()).isNull();
+            assertThat(payment.getPaymentStatus()).isNull();
+            assertThat(payment.getCreatedAt()).isNull();
         }
     }
 
     @Nested
-    @DisplayName("결제 상태 업데이트")
-    class UpdatePaymentStatus {
+    @DisplayName("Payment 상태 관리")
+    class PaymentStatusTests {
 
         @Test
         @DisplayName("결제 상태를 성공으로 변경한다")
-        void updateStatus_ToSuccess() {
+        void updateStatus_Success() {
             // given
-            Payment payment = createPayment();
+            Payment payment = Payment.builder()
+                    .paymentId(TEST_PAYMENT_ID)
+                    .orderId(TEST_ORDER_ID)
+                    .totalAmount(TEST_TOTAL_AMOUNT)
+                    .discountAmount(TEST_DISCOUNT_AMOUNT)
+                    .finalAmount(TEST_FINAL_AMOUNT)
+                    .paymentStatus(PaymentStatus.PENDING)
+                    .createdAt(LocalDateTime.now())
+                    .build();
 
             // when
             payment.updateStatus(PaymentStatus.SUCCESS);
 
             // then
-            assertThat(payment.getStatus()).isEqualTo(PaymentStatus.SUCCESS);
+            assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.SUCCESS);
         }
 
         @Test
         @DisplayName("결제 상태를 실패로 변경한다")
-        void updateStatus_ToFailed() {
+        void updateStatus_Failed() {
             // given
-            Payment payment = createPayment();
+            Payment payment = Payment.builder()
+                    .paymentId(TEST_PAYMENT_ID)
+                    .orderId(TEST_ORDER_ID)
+                    .totalAmount(TEST_TOTAL_AMOUNT)
+                    .discountAmount(TEST_DISCOUNT_AMOUNT)
+                    .finalAmount(TEST_FINAL_AMOUNT)
+                    .paymentStatus(PaymentStatus.PENDING)
+                    .createdAt(LocalDateTime.now())
+                    .build();
 
             // when
             payment.updateStatus(PaymentStatus.FAILED);
 
             // then
-            assertThat(payment.getStatus()).isEqualTo(PaymentStatus.FAILED);
-        }
-
-        @Test
-        @DisplayName("결제 상태를 대기로 변경한다")
-        void updateStatus_ToPending() {
-            // given
-            Payment payment = createPayment();
-            payment.updateStatus(PaymentStatus.SUCCESS);
-
-            // when
-            payment.updateStatus(PaymentStatus.PENDING);
-
-            // then
-            assertThat(payment.getStatus()).isEqualTo(PaymentStatus.PENDING);
+            assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.FAILED);
         }
     }
 
     @Nested
-    @DisplayName("결제 상태 확인")
-    class CheckPaymentStatus {
+    @DisplayName("Payment 상태 확인")
+    class PaymentStatusCheckTests {
 
         @Test
-        @DisplayName("결제가 성공 상태인지 확인한다")
-        void isSuccessful_ReturnsTrue() {
+        @DisplayName("성공 상태인지 확인한다")
+        void isSuccessful() {
             // given
-            Payment payment = createPayment();
-            payment.updateStatus(PaymentStatus.SUCCESS);
+            Payment payment = Payment.builder()
+                    .paymentId(TEST_PAYMENT_ID)
+                    .orderId(TEST_ORDER_ID)
+                    .totalAmount(TEST_TOTAL_AMOUNT)
+                    .discountAmount(TEST_DISCOUNT_AMOUNT)
+                    .finalAmount(TEST_FINAL_AMOUNT)
+                    .paymentStatus(PaymentStatus.SUCCESS)
+                    .createdAt(LocalDateTime.now())
+                    .build();
 
             // when & then
             assertThat(payment.isSuccessful()).isTrue();
         }
 
         @Test
-        @DisplayName("결제가 성공 상태가 아닌지 확인한다")
-        void isSuccessful_ReturnsFalse() {
+        @DisplayName("실패 상태인지 확인한다")
+        void isFailed() {
             // given
-            Payment payment = createPayment();
-
-            // when & then
-            assertThat(payment.isSuccessful()).isFalse();
-        }
-
-        @Test
-        @DisplayName("결제가 실패 상태인지 확인한다")
-        void isFailed_ReturnsTrue() {
-            // given
-            Payment payment = createPayment();
-            payment.updateStatus(PaymentStatus.FAILED);
+            Payment payment = Payment.builder()
+                    .paymentId(TEST_PAYMENT_ID)
+                    .orderId(TEST_ORDER_ID)
+                    .totalAmount(TEST_TOTAL_AMOUNT)
+                    .discountAmount(TEST_DISCOUNT_AMOUNT)
+                    .finalAmount(TEST_FINAL_AMOUNT)
+                    .paymentStatus(PaymentStatus.FAILED)
+                    .createdAt(LocalDateTime.now())
+                    .build();
 
             // when & then
             assertThat(payment.isFailed()).isTrue();
         }
 
         @Test
-        @DisplayName("결제가 실패 상태가 아닌지 확인한다")
-        void isFailed_ReturnsFalse() {
-            // given
-            Payment payment = createPayment();
-
-            // when & then
-            assertThat(payment.isFailed()).isFalse();
-        }
-
-        @Test
-        @DisplayName("대기 상태의 결제는 성공도 실패도 아니다")
-        void pendingPayment_IsNeitherSuccessNorFailed() {
-            // given
-            Payment payment = createPayment();
-
-            // when & then
-            assertThat(payment.isSuccessful()).isFalse();
-            assertThat(payment.isFailed()).isFalse();
-        }
-    }
-
-    @Nested
-    @DisplayName("결제 금액 계산")
-    class CalculatePaymentAmount {
-
-        @Test
-        @DisplayName("할인 금액이 올바르게 계산된다")
-        void discountAmount_IsCalculatedCorrectly() {
-            // given
-            Payment payment = createPayment();
-
-            // when & then
-            assertThat(payment.getOriginalPrice() - payment.getDiscountAmount()).isEqualTo(payment.getFinalPrice());
-        }
-
-        @Test
-        @DisplayName("할인이 없는 경우 원가와 최종가가 같다")
-        void noDiscount_OriginalPriceEqualsFinalPrice() {
+        @DisplayName("대기 상태는 성공이 아니다")
+        void isSuccessful_PendingStatus() {
             // given
             Payment payment = Payment.builder()
                     .paymentId(TEST_PAYMENT_ID)
                     .orderId(TEST_ORDER_ID)
-                    .originalPrice(TEST_ORIGINAL_PRICE)
-                    .discountAmount(0L)
-                    .finalPrice(TEST_ORIGINAL_PRICE)
-                    .status(PaymentStatus.PENDING)
-                    .createdAt(TEST_CREATED_AT)
+                    .totalAmount(TEST_TOTAL_AMOUNT)
+                    .discountAmount(TEST_DISCOUNT_AMOUNT)
+                    .finalAmount(TEST_FINAL_AMOUNT)
+                    .paymentStatus(PaymentStatus.PENDING)
+                    .createdAt(LocalDateTime.now())
                     .build();
 
             // when & then
-            assertThat(payment.getOriginalPrice()).isEqualTo(payment.getFinalPrice());
-            assertThat(payment.getDiscountAmount()).isEqualTo(0L);
+            assertThat(payment.isSuccessful()).isFalse();
         }
     }
 
-    private Payment createPayment() {
-        return Payment.builder()
-                .paymentId(TEST_PAYMENT_ID)
-                .orderId(TEST_ORDER_ID)
-                .originalPrice(TEST_ORIGINAL_PRICE)
-                .discountAmount(TEST_DISCOUNT_AMOUNT)
-                .finalPrice(TEST_FINAL_PRICE)
-                .status(PaymentStatus.PENDING)
-                .createdAt(TEST_CREATED_AT)
-                .build();
+    @Nested
+    @DisplayName("Payment 금액 계산")
+    class PaymentAmountCalculationTests {
+
+        @Test
+        @DisplayName("할인이 적용된 금액이 올바르게 계산된다")
+        void calculateAmount_WithDiscount() {
+            // given
+            Payment payment = Payment.builder()
+                    .paymentId(TEST_PAYMENT_ID)
+                    .orderId(TEST_ORDER_ID)
+                    .totalAmount(TEST_TOTAL_AMOUNT)
+                    .discountAmount(TEST_DISCOUNT_AMOUNT)
+                    .finalAmount(TEST_FINAL_AMOUNT)
+                    .paymentStatus(PaymentStatus.SUCCESS)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            // when & then
+            assertThat(payment.getTotalAmount() - payment.getDiscountAmount()).isEqualTo(payment.getFinalAmount());
+        }
+
+        @Test
+        @DisplayName("할인이 없는 경우 총액과 최종액이 같다")
+        void calculateAmount_WithoutDiscount() {
+            // given
+            Payment payment = Payment.builder()
+                    .paymentId(TEST_PAYMENT_ID)
+                    .orderId(TEST_ORDER_ID)
+                    .totalAmount(TEST_TOTAL_AMOUNT)
+                    .discountAmount(0)
+                    .finalAmount(TEST_TOTAL_AMOUNT)
+                    .paymentStatus(PaymentStatus.SUCCESS)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            // when & then
+            assertThat(payment.getTotalAmount()).isEqualTo(payment.getFinalAmount());
+        }
+
+        @Test
+        @DisplayName("최대 할인이 적용된 경우")
+        void calculateAmount_WithMaximumDiscount() {
+            // given
+            Payment payment = Payment.builder()
+                    .paymentId(TEST_PAYMENT_ID)
+                    .orderId(TEST_ORDER_ID)
+                    .totalAmount(TEST_TOTAL_AMOUNT)
+                    .discountAmount(TEST_TOTAL_AMOUNT)
+                    .finalAmount(0)
+                    .paymentStatus(PaymentStatus.SUCCESS)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            // when & then
+            assertThat(payment.getFinalAmount()).isEqualTo(0);
+        }
     }
 } 

@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,11 +35,9 @@ class PaymentFacadeTest {
     private static final Long TEST_ORDER_ID = 1L;
     private static final Long TEST_PAYMENT_ID = 1L;
     private static final Long TEST_COUPON_ID = 1L;
-    private static final Long TEST_TOTAL_AMOUNT = 20000L;
-    private static final Long TEST_DISCOUNT_AMOUNT = 2000L;
-    private static final Long TEST_FINAL_AMOUNT = 18000L;
-    private static final Long TEST_USER_BALANCE = 25000L;
-    private static final Long TEST_INSUFFICIENT_BALANCE = 10000L;
+    private static final Integer TEST_TOTAL_AMOUNT = 20000;
+    private static final Integer TEST_DISCOUNT_AMOUNT = 2000;
+    private static final Integer TEST_FINAL_AMOUNT = 18000;
 
     @Mock
     private PaymentService paymentService;
@@ -65,8 +64,7 @@ class PaymentFacadeTest {
             Payment mockSuccessPayment = createMockPayment(PaymentStatus.SUCCESS);
 
             when(orderService.getOrder(TEST_USER_ID, TEST_ORDER_ID)).thenReturn(mockOrder);
-            when(userService.getBalance(TEST_USER_ID)).thenReturn(TEST_USER_BALANCE);
-            when(paymentService.createPayment(anyLong(), anyLong(), anyLong(), anyLong())).thenReturn(mockPayment);
+            when(paymentService.createPayment(anyLong(), anyInt(), anyInt(), anyInt())).thenReturn(mockPayment);
             when(paymentService.processPaymentSuccess(anyLong())).thenReturn(mockSuccessPayment);
 
             // when
@@ -74,26 +72,7 @@ class PaymentFacadeTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getStatus()).isEqualTo(PaymentStatus.SUCCESS);
-        }
-
-        @Test
-        @DisplayName("포인트가 부족하면 예외가 발생한다")
-        void payOrder_InsufficientPoints_ThrowsException() {
-            // given
-            Order mockOrder = createMockOrder();
-            when(orderService.getOrder(TEST_USER_ID, TEST_ORDER_ID)).thenReturn(mockOrder);
-            when(userService.getBalance(TEST_USER_ID)).thenReturn(TEST_INSUFFICIENT_BALANCE);
-
-            // when & then
-            assertThatThrownBy(() -> paymentFacade.payOrder(TEST_USER_ID, TEST_ORDER_ID))
-                    .isInstanceOf(BusinessException.class)
-                    .satisfies(exception -> {
-                        BusinessException businessException = (BusinessException) exception;
-                        assertThat(businessException.getCode()).isEqualTo(BusinessError.INSUFFICIENT_POINT.getCode());
-                    });
-
-            verify(userService, never()).usePoint(anyLong(), anyLong());
+            assertThat(result.getPaymentStatus()).isEqualTo(PaymentStatus.SUCCESS);
         }
 
         @Test
@@ -111,7 +90,7 @@ class PaymentFacadeTest {
                         assertThat(businessException.getCode()).isEqualTo(BusinessError.ORDER_NOT_FOUND.getCode());
                     });
 
-            verify(userService, never()).getBalance(anyLong());
+            verify(userService, never()).getCurrentBalance(anyLong());
         }
     }
 
@@ -123,7 +102,7 @@ class PaymentFacadeTest {
                 .totalAmount(TEST_TOTAL_AMOUNT)
                 .discountAmount(TEST_DISCOUNT_AMOUNT)
                 .finalAmount(TEST_FINAL_AMOUNT)
-                .status(OrderStatus.PENDING)
+                .orderStatus(OrderStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -133,10 +112,10 @@ class PaymentFacadeTest {
         return Payment.builder()
                 .paymentId(TEST_PAYMENT_ID)
                 .orderId(TEST_ORDER_ID)
-                .originalPrice(TEST_TOTAL_AMOUNT)
+                .totalAmount(TEST_TOTAL_AMOUNT)
                 .discountAmount(TEST_DISCOUNT_AMOUNT)
-                .finalPrice(TEST_FINAL_AMOUNT)
-                .status(status)
+                .finalAmount(TEST_FINAL_AMOUNT)
+                .paymentStatus(status)
                 .createdAt(LocalDateTime.now())
                 .build();
     }

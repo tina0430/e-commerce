@@ -1,5 +1,7 @@
 package kr.hhplus.be.ecommerce.product.domain;
 
+import kr.hhplus.be.ecommerce.common.dto.PageRequest;
+import kr.hhplus.be.ecommerce.common.dto.PageResponse;
 import kr.hhplus.be.ecommerce.common.exception.BusinessError;
 import kr.hhplus.be.ecommerce.common.exception.BusinessException;
 import kr.hhplus.be.ecommerce.order.domain.model.OrderItem;
@@ -10,6 +12,7 @@ import kr.hhplus.be.ecommerce.product.domain.model.ProductOptionEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -30,6 +33,37 @@ public class ProductService {
     public List<Product> getAllProducts() {
         List<ProductEntity> productEntities = productRepository.findAll();
         return mapper.toProductList(productEntities);
+    }
+
+    /**
+     * 상품 목록을 페이징으로 조회합니다.
+     * @param pageRequest 페이징 요청 정보
+     * @return 페이징된 상품 목록
+     */
+    public PageResponse<Product> getProductsWithPaging(PageRequest pageRequest) {
+        // 커서가 없으면 현재 시간을 기준으로 설정
+        LocalDateTime cursor = pageRequest.getCursor() != null ? 
+                pageRequest.getCursor() : LocalDateTime.now();
+        
+        // 페이징된 상품 목록 조회
+        List<ProductEntity> productEntities = productRepository
+                .findProductsByCreatedAtBeforeOrderByCreatedAtDesc(cursor, pageRequest.getSize());
+        
+        List<Product> products = mapper.toProductList(productEntities);
+        
+        // 다음 페이지 존재 여부 확인
+        boolean hasNext = false;
+        LocalDateTime nextCursor = null;
+        
+        if (!products.isEmpty()) {
+            // 마지막 상품의 생성 시간을 다음 커서로 설정
+            nextCursor = products.get(products.size() - 1).getCreatedAt();
+            
+            // 다음 페이지가 있는지 확인 (마지막 상품보다 이전에 더 많은 상품이 있는지)
+            hasNext = productRepository.existsByCreatedAtBefore(nextCursor);
+        }
+        
+        return PageResponse.of(products, nextCursor, hasNext, pageRequest.getSize());
     }
 
     /**

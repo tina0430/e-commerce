@@ -28,15 +28,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("결제 컨트롤러 테스트")
-class PaymentControllerTest {
+@DisplayName("결제 컨트롤러 단위 테스트")
+class PaymentControllerUnitTest {
 
     private static final Long TEST_USER_ID = 1L;
     private static final Long TEST_ORDER_ID = 1L;
     private static final Long TEST_PAYMENT_ID = 1L;
-    private static final Long TEST_ORIGINAL_PRICE = 20000L;
-    private static final Long TEST_DISCOUNT_AMOUNT = 2000L;
-    private static final Integer TEST_FINAL_PRICE = 18000;
+    private static final Integer TEST_TOTAL_AMOUNT = 20000;
+    private static final Integer TEST_DISCOUNT_AMOUNT = 2000;
+    private static final Integer TEST_FINAL_AMOUNT = 18000;
     private static final LocalDateTime TEST_CREATED_AT = LocalDateTime.of(2024, 1, 1, 12, 0, 0);
 
     @Mock
@@ -79,10 +79,10 @@ class PaymentControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.paymentId").value(TEST_PAYMENT_ID))
-                    .andExpect(jsonPath("$.originalPrice").value(TEST_ORIGINAL_PRICE))
+                    .andExpect(jsonPath("$.totalAmount").value(TEST_TOTAL_AMOUNT))
                     .andExpect(jsonPath("$.discountAmount").value(TEST_DISCOUNT_AMOUNT))
-                    .andExpect(jsonPath("$.finalPrice").value(TEST_FINAL_PRICE))
-                    .andExpect(jsonPath("$.status").value(PaymentStatus.SUCCESS.name()))
+                    .andExpect(jsonPath("$.finalAmount").value(TEST_FINAL_AMOUNT))
+                    .andExpect(jsonPath("$.paymentStatus").value(PaymentStatus.SUCCESS.name()))
                     .andExpect(jsonPath("$.createdAt").exists());
         }
 
@@ -154,10 +154,10 @@ class PaymentControllerTest {
         return Payment.builder()
                 .paymentId(TEST_PAYMENT_ID)
                 .orderId(TEST_ORDER_ID)
-                .originalPrice(TEST_ORIGINAL_PRICE)
+                .totalAmount(TEST_TOTAL_AMOUNT)
                 .discountAmount(TEST_DISCOUNT_AMOUNT)
-                .finalPrice(TEST_FINAL_PRICE.longValue())
-                .status(PaymentStatus.SUCCESS)
+                .finalAmount(TEST_FINAL_AMOUNT)
+                .paymentStatus(PaymentStatus.SUCCESS)
                 .createdAt(TEST_CREATED_AT)
                 .build();
     }
@@ -165,9 +165,9 @@ class PaymentControllerTest {
     private PaymentDto.PaymentResponse createPaymentResponse() {
         return new PaymentDto.PaymentResponse(
                 TEST_PAYMENT_ID,
-                TEST_ORIGINAL_PRICE,
+                TEST_TOTAL_AMOUNT,
                 TEST_DISCOUNT_AMOUNT,
-                TEST_FINAL_PRICE,
+                TEST_FINAL_AMOUNT,
                 PaymentStatus.SUCCESS,
                 TEST_CREATED_AT
         );

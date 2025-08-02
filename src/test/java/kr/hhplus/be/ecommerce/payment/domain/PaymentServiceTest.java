@@ -30,10 +30,9 @@ class PaymentServiceTest {
 
     private static final Long TEST_PAYMENT_ID = 1L;
     private static final Long TEST_ORDER_ID = 1L;
-    private static final Long TEST_ORIGINAL_PRICE = 20000L;
-    private static final Long TEST_DISCOUNT_AMOUNT = 2000L;
-    private static final Long TEST_FINAL_PRICE = 18000L;
-    private static final LocalDateTime TEST_CREATED_AT = LocalDateTime.of(2024, 1, 1, 12, 0, 0);
+    private static final Integer TEST_TOTAL_AMOUNT = 20000;
+    private static final Integer TEST_DISCOUNT_AMOUNT = 2000;
+    private static final Integer TEST_FINAL_AMOUNT = 18000;
 
     @Mock
     private PaymentRepository paymentRepository;
@@ -49,8 +48,8 @@ class PaymentServiceTest {
 
     @BeforeEach
     void setUp() {
-        paymentEntity = createPaymentEntity();
-        payment = createPayment();
+        paymentEntity = createMockPaymentEntity();
+        payment = createMockPayment();
     }
 
     @Nested
@@ -58,56 +57,58 @@ class PaymentServiceTest {
     class CreatePayment {
 
         @Test
-        @DisplayName("정상적인 결제를 생성한다")
+        @DisplayName("결제를 정상적으로 생성한다")
         void createPayment_Success() {
             // given
+            PaymentEntity paymentEntity = PaymentEntity.builder()
+                    .paymentId(TEST_PAYMENT_ID)
+                    .orderId(TEST_ORDER_ID)
+                    .totalAmount(TEST_TOTAL_AMOUNT)
+                    .discountAmount(TEST_DISCOUNT_AMOUNT)
+                    .finalAmount(TEST_FINAL_AMOUNT)
+                    .paymentStatus(PaymentStatus.PENDING)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
             when(paymentRepository.save(any(PaymentEntity.class))).thenReturn(paymentEntity);
-            when(paymentMapper.toPayment(paymentEntity)).thenReturn(payment);
+            when(paymentMapper.toPayment(any(PaymentEntity.class))).thenReturn(createMockPayment());
 
             // when
-            Payment result = paymentService.createPayment(TEST_ORDER_ID, TEST_ORIGINAL_PRICE, TEST_DISCOUNT_AMOUNT, TEST_FINAL_PRICE);
+            Payment result = paymentService.createPayment(TEST_ORDER_ID, TEST_TOTAL_AMOUNT, TEST_DISCOUNT_AMOUNT, TEST_FINAL_AMOUNT);
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getPaymentId()).isEqualTo(TEST_PAYMENT_ID);
-            assertThat(result.getOrderId()).isEqualTo(TEST_ORDER_ID);
-            assertThat(result.getOriginalPrice()).isEqualTo(TEST_ORIGINAL_PRICE);
+            assertThat(result.getTotalAmount()).isEqualTo(TEST_TOTAL_AMOUNT);
             assertThat(result.getDiscountAmount()).isEqualTo(TEST_DISCOUNT_AMOUNT);
-            assertThat(result.getFinalPrice()).isEqualTo(TEST_FINAL_PRICE);
-            assertThat(result.getStatus()).isEqualTo(PaymentStatus.PENDING);
-
-            verify(paymentRepository).save(any(PaymentEntity.class));
-            verify(paymentMapper).toPayment(paymentEntity);
+            assertThat(result.getFinalAmount()).isEqualTo(TEST_FINAL_AMOUNT);
+            assertThat(result.getPaymentStatus()).isEqualTo(PaymentStatus.PENDING);
         }
 
         @Test
         @DisplayName("할인이 없는 결제를 생성한다")
         void createPayment_WithoutDiscount() {
             // given
-            Payment noDiscountPayment = Payment.builder()
+            PaymentEntity paymentEntity = PaymentEntity.builder()
                     .paymentId(TEST_PAYMENT_ID)
                     .orderId(TEST_ORDER_ID)
-                    .originalPrice(TEST_ORIGINAL_PRICE)
-                    .discountAmount(0L)
-                    .finalPrice(TEST_ORIGINAL_PRICE)
-                    .status(PaymentStatus.PENDING)
-                    .createdAt(TEST_CREATED_AT)
+                    .totalAmount(TEST_TOTAL_AMOUNT)
+                    .discountAmount(0)
+                    .finalAmount(TEST_TOTAL_AMOUNT)
+                    .paymentStatus(PaymentStatus.PENDING)
+                    .createdAt(LocalDateTime.now())
                     .build();
 
             when(paymentRepository.save(any(PaymentEntity.class))).thenReturn(paymentEntity);
-            when(paymentMapper.toPayment(paymentEntity)).thenReturn(noDiscountPayment);
+            when(paymentMapper.toPayment(any(PaymentEntity.class))).thenReturn(createMockPaymentWithoutDiscount());
 
             // when
-            Payment result = paymentService.createPayment(TEST_ORDER_ID, TEST_ORIGINAL_PRICE, 0L, TEST_ORIGINAL_PRICE);
+            Payment result = paymentService.createPayment(TEST_ORDER_ID, TEST_TOTAL_AMOUNT, 0, TEST_TOTAL_AMOUNT);
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getOriginalPrice()).isEqualTo(TEST_ORIGINAL_PRICE);
-            assertThat(result.getFinalPrice()).isEqualTo(TEST_ORIGINAL_PRICE);
-            assertThat(result.getDiscountAmount()).isEqualTo(0L);
-
-            verify(paymentRepository).save(any(PaymentEntity.class));
-            verify(paymentMapper).toPayment(paymentEntity);
+            assertThat(result.getTotalAmount()).isEqualTo(TEST_TOTAL_AMOUNT);
+            assertThat(result.getDiscountAmount()).isEqualTo(0);
+            assertThat(result.getFinalAmount()).isEqualTo(TEST_TOTAL_AMOUNT);
         }
     }
 
@@ -119,8 +120,8 @@ class PaymentServiceTest {
         @DisplayName("결제를 성공으로 처리한다")
         void processPaymentSuccess_Success() {
             // given
-            Payment successPayment = createSuccessPayment();
-            PaymentEntity updatedPaymentEntity = createSuccessPaymentEntity();
+            Payment successPayment = createMockSuccessPayment();
+            PaymentEntity updatedPaymentEntity = createMockPaymentEntity();
 
             when(paymentRepository.findById(TEST_PAYMENT_ID)).thenReturn(Optional.of(paymentEntity));
             when(paymentMapper.toPayment(paymentEntity)).thenReturn(payment);
@@ -133,7 +134,7 @@ class PaymentServiceTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getStatus()).isEqualTo(PaymentStatus.SUCCESS);
+            assertThat(result.getPaymentStatus()).isEqualTo(PaymentStatus.SUCCESS);
             assertThat(result.isSuccessful()).isTrue();
 
             verify(paymentRepository).findById(TEST_PAYMENT_ID);
@@ -205,51 +206,75 @@ class PaymentServiceTest {
         }
     }
 
-    private PaymentEntity createPaymentEntity() {
+    private PaymentEntity createMockPaymentEntity() {
         return PaymentEntity.builder()
                 .paymentId(TEST_PAYMENT_ID)
                 .orderId(TEST_ORDER_ID)
-                .originalPrice(TEST_ORIGINAL_PRICE)
+                .totalAmount(TEST_TOTAL_AMOUNT)
                 .discountAmount(TEST_DISCOUNT_AMOUNT)
-                .finalPrice(TEST_FINAL_PRICE)
-                .status(PaymentStatus.PENDING)
-                .createdAt(TEST_CREATED_AT)
+                .finalAmount(TEST_FINAL_AMOUNT)
+                .paymentStatus(PaymentStatus.PENDING)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 
-    private PaymentEntity createSuccessPaymentEntity() {
+    private PaymentEntity createMockPaymentEntityWithoutDiscount() {
         return PaymentEntity.builder()
                 .paymentId(TEST_PAYMENT_ID)
                 .orderId(TEST_ORDER_ID)
-                .originalPrice(TEST_ORIGINAL_PRICE)
-                .discountAmount(TEST_DISCOUNT_AMOUNT)
-                .finalPrice(TEST_FINAL_PRICE)
-                .status(PaymentStatus.SUCCESS)
-                .createdAt(TEST_CREATED_AT)
+                .totalAmount(TEST_TOTAL_AMOUNT)
+                .discountAmount(0)
+                .finalAmount(TEST_TOTAL_AMOUNT)
+                .paymentStatus(PaymentStatus.PENDING)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 
-    private Payment createPayment() {
+    private Payment createMockPayment() {
         return Payment.builder()
                 .paymentId(TEST_PAYMENT_ID)
                 .orderId(TEST_ORDER_ID)
-                .originalPrice(TEST_ORIGINAL_PRICE)
+                .totalAmount(TEST_TOTAL_AMOUNT)
                 .discountAmount(TEST_DISCOUNT_AMOUNT)
-                .finalPrice(TEST_FINAL_PRICE)
-                .status(PaymentStatus.PENDING)
-                .createdAt(TEST_CREATED_AT)
+                .finalAmount(TEST_FINAL_AMOUNT)
+                .paymentStatus(PaymentStatus.PENDING)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 
-    private Payment createSuccessPayment() {
+    private Payment createMockPaymentWithoutDiscount() {
         return Payment.builder()
                 .paymentId(TEST_PAYMENT_ID)
                 .orderId(TEST_ORDER_ID)
-                .originalPrice(TEST_ORIGINAL_PRICE)
+                .totalAmount(TEST_TOTAL_AMOUNT)
+                .discountAmount(0)
+                .finalAmount(TEST_TOTAL_AMOUNT)
+                .paymentStatus(PaymentStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    private Payment createMockSuccessPayment() {
+        return Payment.builder()
+                .paymentId(TEST_PAYMENT_ID)
+                .orderId(TEST_ORDER_ID)
+                .totalAmount(TEST_TOTAL_AMOUNT)
                 .discountAmount(TEST_DISCOUNT_AMOUNT)
-                .finalPrice(TEST_FINAL_PRICE)
-                .status(PaymentStatus.SUCCESS)
-                .createdAt(TEST_CREATED_AT)
+                .finalAmount(TEST_FINAL_AMOUNT)
+                .paymentStatus(PaymentStatus.SUCCESS)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    private Payment createMockFailedPayment() {
+        return Payment.builder()
+                .paymentId(TEST_PAYMENT_ID)
+                .orderId(TEST_ORDER_ID)
+                .totalAmount(TEST_TOTAL_AMOUNT)
+                .discountAmount(TEST_DISCOUNT_AMOUNT)
+                .finalAmount(TEST_FINAL_AMOUNT)
+                .paymentStatus(PaymentStatus.FAILED)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 } 

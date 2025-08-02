@@ -13,7 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "coupon_policies")
+@Table(name = "tb_coupon_policy")
 @Getter
 @Setter
 @Builder
@@ -35,13 +35,13 @@ public class CouponPolicyEntity {
     private DiscountType discountType;
 
     @Column(name = "discount_value", nullable = false)
-    private Long discountValue;
+    private Integer discountValue;
 
     @Column(name = "max_discount_amount")
-    private Long maxDiscountAmount;
+    private Integer maxDiscountAmount;
 
     @Column(name = "min_order_amount")
-    private Long minOrderAmount;
+    private Integer minOrderAmount;
 
     @Column(name = "issue_start_at")
     private LocalDateTime issueStartAt;
@@ -59,8 +59,8 @@ public class CouponPolicyEntity {
     private Integer validDurationDays;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private CouponPolicyStatus status;
+    @Column(name = "coupon_status", nullable = false)
+    private CouponPolicyStatus couponStatus;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)

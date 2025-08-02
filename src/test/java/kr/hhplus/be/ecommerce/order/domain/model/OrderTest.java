@@ -13,22 +13,22 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DisplayName("주문 도메인 객체 테스트")
+@DisplayName("주문 도메인 모델 테스트")
 class OrderTest {
 
     private static final Long TEST_ORDER_ID = 1L;
     private static final Long TEST_USER_ID = 1L;
     private static final Long TEST_USER_COUPON_ID = 1L;
-    private static final Long TEST_TOTAL_AMOUNT = 20000L;
-    private static final Long TEST_DISCOUNT_AMOUNT = 2000L;
-    private static final Long TEST_FINAL_AMOUNT = 18000L;
+    private static final Integer TEST_TOTAL_AMOUNT = 20000;
+    private static final Integer TEST_DISCOUNT_AMOUNT = 2000;
+    private static final Integer TEST_FINAL_AMOUNT = 18000;
     private static final Long TEST_PRODUCT_ID = 1L;
     private static final Long TEST_PRODUCT_OPTION_ID = 1L;
     private static final String TEST_PRODUCT_OPTION_NAME = "테스트 옵션";
     private static final Integer TEST_QUANTITY = 2;
-    private static final Long TEST_UNIT_PRICE = 10000L;
-    private static final Long TEST_ITEM_DISCOUNT_AMOUNT = 1000L;
-    private static final Long TEST_ITEM_FINAL_PRICE = 19000L;
+    private static final Integer TEST_UNIT_PRICE = 10000;
+    private static final Integer TEST_ITEM_DISCOUNT_AMOUNT = 1000;
+    private static final Integer TEST_ITEM_FINAL_AMOUNT = 19000;
 
     @Nested
     @DisplayName("주문 생성")
@@ -47,7 +47,7 @@ class OrderTest {
             assertThat(order.getUserId()).isEqualTo(TEST_USER_ID);
             assertThat(order.getUserCouponId()).isNull();
             assertThat(order.getTotalAmount()).isEqualTo(TEST_TOTAL_AMOUNT);
-            assertThat(order.getStatus()).isEqualTo(OrderStatus.PENDING);
+            assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PENDING);
             assertThat(order.getOrderItems()).hasSize(1);
             assertThat(order.getCreatedAt()).isNotNull();
             assertThat(order.getUpdatedAt()).isNotNull();
@@ -67,7 +67,7 @@ class OrderTest {
             assertThat(order.getUserId()).isEqualTo(TEST_USER_ID);
             assertThat(order.getUserCouponId()).isEqualTo(TEST_USER_COUPON_ID);
             assertThat(order.getTotalAmount()).isEqualTo(TEST_TOTAL_AMOUNT);
-            assertThat(order.getStatus()).isEqualTo(OrderStatus.PENDING);
+            assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PENDING);
             assertThat(order.getOrderItems()).hasSize(1);
         }
     }
@@ -86,7 +86,7 @@ class OrderTest {
             order.updateStatus(OrderStatus.CONFIRMED);
 
             // then
-            assertThat(order.getStatus()).isEqualTo(OrderStatus.CONFIRMED);
+            assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CONFIRMED);
         }
     }
 
@@ -99,13 +99,13 @@ class OrderTest {
         void cancel_PendingOrder() {
             // given
             Order order = createOrder();
-            assertThat(order.getStatus()).isEqualTo(OrderStatus.PENDING);
+            assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PENDING);
 
             // when
             order.cancel();
 
             // then
-            assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+            assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CANCELLED);
             assertThat(order.getUpdatedAt()).isAfter(order.getCreatedAt());
         }
 
@@ -120,7 +120,7 @@ class OrderTest {
             order.cancel();
 
             // then
-            assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+            assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CANCELLED);
         }
 
         @Test
@@ -159,13 +159,13 @@ class OrderTest {
         void confirm_PendingOrder() {
             // given
             Order order = createOrder();
-            assertThat(order.getStatus()).isEqualTo(OrderStatus.PENDING);
+            assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PENDING);
 
             // when
             order.confirm();
 
             // then
-            assertThat(order.getStatus()).isEqualTo(OrderStatus.CONFIRMED);
+            assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CONFIRMED);
             assertThat(order.getUpdatedAt()).isAfter(order.getCreatedAt());
         }
 
@@ -329,7 +329,7 @@ class OrderTest {
                     .productOptionName(TEST_PRODUCT_OPTION_NAME)
                     .quantity(TEST_QUANTITY)
                     .unitPrice(TEST_UNIT_PRICE)
-                    .discountAmount(0L)
+                    .discountAmount(0)
                     .finalPrice(TEST_UNIT_PRICE * TEST_QUANTITY)
                     .build();
 
@@ -337,10 +337,10 @@ class OrderTest {
                     .orderId(TEST_ORDER_ID)
                     .userId(TEST_USER_ID)
                     .userCouponId(null)
-                    .totalAmount(0L)
+                    .totalAmount(0)
                     .discountAmount(TEST_DISCOUNT_AMOUNT)
                     .finalAmount(TEST_FINAL_AMOUNT)
-                    .status(OrderStatus.PENDING)
+                    .orderStatus(OrderStatus.PENDING)
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
                     .orderItems(List.of(orderItem))
@@ -362,7 +362,7 @@ class OrderTest {
                 .totalAmount(TEST_TOTAL_AMOUNT)
                 .discountAmount(TEST_DISCOUNT_AMOUNT)
                 .finalAmount(TEST_FINAL_AMOUNT)
-                .status(OrderStatus.PENDING)
+                .orderStatus(OrderStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .orderItems(createOrderItems())
@@ -377,7 +377,7 @@ class OrderTest {
                 .totalAmount(TEST_TOTAL_AMOUNT)
                 .discountAmount(TEST_DISCOUNT_AMOUNT)
                 .finalAmount(TEST_FINAL_AMOUNT)
-                .status(OrderStatus.PENDING)
+                .orderStatus(OrderStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .orderItems(createOrderItems())
@@ -394,7 +394,7 @@ class OrderTest {
                 .quantity(TEST_QUANTITY)
                 .unitPrice(TEST_UNIT_PRICE)
                 .discountAmount(TEST_ITEM_DISCOUNT_AMOUNT)
-                .finalPrice(TEST_ITEM_FINAL_PRICE)
+                .finalPrice(TEST_ITEM_FINAL_AMOUNT)
                 .build();
 
         return List.of(orderItem);
@@ -407,10 +407,10 @@ class OrderTest {
                 .userId(TEST_USER_ID)
                 .couponName("테스트 쿠폰")
                 .discountType(DiscountType.AMOUNT)
-                .discountValue(2000L)
-                .maxDiscountAmount(2000L)
-                .minOrderAmount(10000L)
-                .status(UserCouponStatus.AVAILABLE)
+                .discountValue(2000)
+                .maxDiscountAmount(2000)
+                .minOrderAmount(10000)
+                .usageStatus(UserCouponStatus.AVAILABLE)
                 .startAt(LocalDateTime.now().minusDays(1))
                 .endAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())

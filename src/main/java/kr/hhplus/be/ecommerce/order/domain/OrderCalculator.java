@@ -14,13 +14,13 @@ public class OrderCalculator {
 
     public static void applyDiscount(UserCoupon coupon, List<OrderItem> orderItems) {
         if (coupon == null) return;
-        long totalAmount = orderItems.stream().mapToLong(OrderItem::getPrice).sum();
-        long totalDiscount = coupon.getDiscountType() == DiscountType.AMOUNT
+        int totalAmount = orderItems.stream().mapToInt(OrderItem::getPrice).sum();
+        int totalDiscount = coupon.getDiscountType() == DiscountType.AMOUNT
                 ? coupon.getDiscountValue()
                 : Math.round(totalAmount * coupon.getDiscountValue() / 100f);
-        long remaining = totalDiscount;
+        int remaining = totalDiscount;
         for (OrderItem orderItem : orderItems) {
-            long discount = totalDiscount / orderItems.size();
+            int discount = totalDiscount / orderItems.size();
             if (remaining < discount) discount = remaining;
             orderItem.applyDiscount(discount);
             remaining -= discount;

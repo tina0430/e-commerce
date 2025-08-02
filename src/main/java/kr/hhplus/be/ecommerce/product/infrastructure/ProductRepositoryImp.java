@@ -6,6 +6,7 @@ import kr.hhplus.be.ecommerce.product.domain.model.ProductOptionEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +27,21 @@ public class ProductRepositoryImp implements ProductRepository {
     @Override
     public List<ProductEntity> findAll() {
         return jpaProductRepository.findAll();
+    }
+
+    @Override
+    public ProductEntity save(ProductEntity productEntity) {
+        return jpaProductRepository.save(productEntity);
+    }
+    
+    @Override
+    public List<ProductEntity> findProductsByCreatedAtBeforeOrderByCreatedAtDesc(LocalDateTime cursor, int size) {
+        return jpaProductRepository.findByCreatedAtBeforeOrderByCreatedAtDesc(cursor, size);
+    }
+    
+    @Override
+    public boolean existsByCreatedAtBefore(LocalDateTime cursor) {
+        return jpaProductRepository.existsByCreatedAtBefore(cursor);
     }
 
     /**

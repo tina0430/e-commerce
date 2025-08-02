@@ -22,7 +22,7 @@ public interface OrderPersistenceMapper {
         if (domain == null || entity == null) {
             return;
         }
-        entity.setStatus(domain.getStatus());
+        entity.setOrderStatus(domain.getOrderStatus());
         entity.setTotalAmount(domain.getTotalAmount());
         entity.setUpdatedAt(domain.getUpdatedAt());
     }

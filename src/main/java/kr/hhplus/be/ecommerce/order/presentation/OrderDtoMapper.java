@@ -13,7 +13,7 @@ public interface OrderDtoMapper {
     @Mapping(target = "orderItemId", ignore = true)
     @Mapping(target = "orderId", ignore = true)
     @Mapping(target = "unitPrice", source = "price")
-    @Mapping(target = "discountAmount", constant = "0L") // 이 시점엔 모름
+    @Mapping(target = "discountAmount", constant = "0") // 이 시점엔 모름
     @Mapping(target = "finalPrice", ignore = true) // 이 시점엔 모름
     OrderItem toOrderItem(OrderDto.OrderItemRequest item);
 

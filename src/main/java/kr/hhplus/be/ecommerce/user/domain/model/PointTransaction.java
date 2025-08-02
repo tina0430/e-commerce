@@ -19,8 +19,8 @@ public class PointTransaction {
     private Long transactionId;
     private Long userId;
     private TransactionType transactionType;
-    private Long amount;
-    private Long balance;
+    private Integer amount;
+    private Integer balance;
     private LocalDateTime createdAt;
 
 } 

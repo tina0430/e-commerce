@@ -31,7 +31,7 @@ public class JpaCouponRepository extends JpaRepositoryBase {
     public List<CouponPolicyEntity> findAvailableCouponPolicies() {
         return queryFactory
                 .selectFrom(couponPolicyEntity)
-                .where(couponPolicyEntity.status.eq(CouponPolicyStatus.ACTIVE))
+                .where(couponPolicyEntity.couponStatus.eq(CouponPolicyStatus.ACTIVE))
                 .fetch();
     }
 

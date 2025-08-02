@@ -2,7 +2,6 @@ package kr.hhplus.be.ecommerce.user.domain.model;
 
 import kr.hhplus.be.ecommerce.common.exception.BusinessError;
 import kr.hhplus.be.ecommerce.common.exception.BusinessException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,35 +14,28 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("유저 도메인 모델 테스트")
 class UserTest {
 
-    private User user;
-
-    // 테스트 상수 정의
     private static final Long TEST_USER_ID = 1L;
     private static final String TEST_USER_NAME = "테스트 유저";
-    private static final Long TEST_BALANCE = 10000L;
-    private static final Long TEST_CHARGE_AMOUNT = 5000L;
-    private static final Long TEST_USE_AMOUNT = 3000L;
-    private static final Long TEST_INSUFFICIENT_AMOUNT = 15000L;
-    private static final Long TEST_ZERO_AMOUNT = 0L;
-
-    @BeforeEach
-    void setUp() {
-        user = User.builder()
-                .userId(TEST_USER_ID)
-                .userName(TEST_USER_NAME)
-                .balance(TEST_BALANCE)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-    }
+    private static final Integer TEST_BALANCE = 10000;
+    private static final Integer TEST_CHARGE_AMOUNT = 5000;
+    private static final Integer TEST_USE_AMOUNT = 3000;
+    private static final Integer TEST_INSUFFICIENT_AMOUNT = 15000;
+    private static final Integer TEST_ZERO_AMOUNT = 0;
 
     @Nested
-    @DisplayName("포인트 충분 여부 확인 테스트")
-    class PointSufficiencyTests {
+    @DisplayName("포인트 충분 여부 확인")
+    class HasEnoughPointTests {
 
         @Test
         @DisplayName("충분한 포인트가 있을 때 true를 반환한다")
         void hasEnoughPoint_WithSufficientBalance() {
+            // given
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_BALANCE)
+                    .build();
+
             // when & then
             assertThat(user.hasEnoughPoint(TEST_CHARGE_AMOUNT)).isTrue();
             assertThat(user.hasEnoughPoint(TEST_BALANCE)).isTrue();
@@ -52,115 +44,164 @@ class UserTest {
         @Test
         @DisplayName("부족한 포인트가 있을 때 false를 반환한다")
         void hasEnoughPoint_WithInsufficientBalance() {
+            // given
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_BALANCE)
+                    .build();
+
             // when & then
             assertThat(user.hasEnoughPoint(TEST_INSUFFICIENT_AMOUNT)).isFalse();
         }
 
         @Test
-        @DisplayName("0 포인트 사용 시 true를 반환한다")
-        void hasEnoughPoint_ZeroAmount() {
+        @DisplayName("0원 요청 시 true를 반환한다")
+        void hasEnoughPoint_WithZeroAmount() {
+            // given
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_BALANCE)
+                    .build();
+
             // when & then
             assertThat(user.hasEnoughPoint(TEST_ZERO_AMOUNT)).isTrue();
         }
     }
 
     @Nested
-    @DisplayName("포인트 충전 테스트")
-    class PointChargeTests {
+    @DisplayName("포인트 충전")
+    class ChargePointTests {
 
         @Test
         @DisplayName("포인트를 정상적으로 충전한다")
-        void chargePoint_PositiveAmount() {
+        void chargePoint() {
             // given
-            long originalBalance = user.getBalance();
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_BALANCE)
+                    .build();
 
             // when
+            Integer originalBalance = user.getCurrentBalance();
             user.chargePoint(TEST_CHARGE_AMOUNT);
 
             // then
-            assertThat(user.getBalance()).isEqualTo(originalBalance + TEST_CHARGE_AMOUNT);
+            assertThat(user.getCurrentBalance()).isEqualTo(originalBalance + TEST_CHARGE_AMOUNT);
         }
 
         @Test
-        @DisplayName("0 포인트 충전 시 잔액이 변하지 않는다")
+        @DisplayName("0원을 충전한다")
         void chargePoint_ZeroAmount() {
             // given
-            long originalBalance = user.getBalance();
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_BALANCE)
+                    .build();
 
             // when
+            Integer originalBalance = user.getCurrentBalance();
             user.chargePoint(TEST_ZERO_AMOUNT);
 
             // then
-            assertThat(user.getBalance()).isEqualTo(originalBalance);
+            assertThat(user.getCurrentBalance()).isEqualTo(originalBalance);
         }
 
         @Test
-        @DisplayName("음수 포인트 충전 시 잔액이 감소한다")
-        void chargePoint_NegativeAmount() {
+        @DisplayName("음수가 아닌 양수를 충전한다")
+        void chargePoint_PositiveAmount() {
             // given
-            long originalBalance = user.getBalance();
-            long chargeAmount = -3000L;
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_BALANCE)
+                    .build();
 
             // when
+            Integer originalBalance = user.getCurrentBalance();
+            Integer chargeAmount = 2000;
             user.chargePoint(chargeAmount);
 
             // then
-            assertThat(user.getBalance()).isEqualTo(originalBalance + chargeAmount);
+            assertThat(user.getCurrentBalance()).isEqualTo(originalBalance + chargeAmount);
         }
 
         @Test
-        @DisplayName("여러 번 포인트를 충전할 수 있다")
+        @DisplayName("여러 번 충전한다")
         void chargePoint_MultipleCharges() {
             // given
-            long originalBalance = user.getBalance();
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_BALANCE)
+                    .build();
 
             // when
-            user.chargePoint(1000L);
-            user.chargePoint(2000L);
-            user.chargePoint(3000L);
+            Integer originalBalance = user.getCurrentBalance();
+            user.chargePoint(1000);
+            user.chargePoint(2000);
+            user.chargePoint(3000);
 
             // then
-            assertThat(user.getBalance()).isEqualTo(originalBalance + 6000L);
+            assertThat(user.getCurrentBalance()).isEqualTo(originalBalance + 6000);
         }
     }
 
     @Nested
-    @DisplayName("포인트 사용 테스트")
-    class PointUsageTests {
+    @DisplayName("포인트 사용")
+    class UsePointTests {
 
         @Test
-        @DisplayName("충분한 포인트가 있을 때 정상적으로 사용한다")
-        void usePoint_WithSufficientBalance() {
+        @DisplayName("포인트를 정상적으로 사용한다")
+        void usePoint() {
             // given
-            long originalBalance = user.getBalance();
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_BALANCE)
+                    .build();
 
             // when
+            Integer originalBalance = user.getCurrentBalance();
             user.usePoint(TEST_CHARGE_AMOUNT);
 
             // then
-            assertThat(user.getBalance()).isEqualTo(originalBalance - TEST_CHARGE_AMOUNT);
+            assertThat(user.getCurrentBalance()).isEqualTo(originalBalance - TEST_CHARGE_AMOUNT);
         }
 
         @Test
-        @DisplayName("정확히 잔액만큼 포인트를 사용할 수 있다")
-        void usePoint_ExactBalance() {
+        @DisplayName("전체 잔액을 사용한다")
+        void usePoint_AllBalance() {
             // given
-            long useAmount = user.getBalance();
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_BALANCE)
+                    .build();
 
             // when
+            Integer useAmount = user.getCurrentBalance();
             user.usePoint(useAmount);
 
             // then
-            assertThat(user.getBalance()).isEqualTo(TEST_ZERO_AMOUNT);
+            assertThat(user.getCurrentBalance()).isEqualTo(TEST_ZERO_AMOUNT);
         }
 
         @Test
         @DisplayName("부족한 포인트로 사용하려 하면 예외가 발생한다")
-        void usePoint_WithInsufficientBalance() {
+        void usePoint_InsufficientBalance() {
             // given
-            long useAmount = TEST_INSUFFICIENT_AMOUNT; // 잔액(TEST_BALANCE)보다 많은 금액
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_BALANCE)
+                    .build();
 
             // when & then
+            int useAmount = TEST_BALANCE + 1000;
             assertThatThrownBy(() -> user.usePoint(useAmount))
                     .isInstanceOf(BusinessException.class)
                     .satisfies(exception -> {
@@ -170,127 +211,152 @@ class UserTest {
         }
 
         @Test
-        @DisplayName("0 포인트 사용 시 잔액이 변하지 않는다")
+        @DisplayName("0원을 사용한다")
         void usePoint_ZeroAmount() {
             // given
-            long originalBalance = user.getBalance();
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_BALANCE)
+                    .build();
 
             // when
+            Integer originalBalance = user.getCurrentBalance();
             user.usePoint(TEST_ZERO_AMOUNT);
 
             // then
-            assertThat(user.getBalance()).isEqualTo(originalBalance);
+            assertThat(user.getCurrentBalance()).isEqualTo(originalBalance);
         }
 
         @Test
-        @DisplayName("여러 번 포인트를 사용할 수 있다")
+        @DisplayName("여러 번 사용한다")
         void usePoint_MultipleUses() {
             // given
-            long originalBalance = user.getBalance();
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_BALANCE)
+                    .build();
 
             // when
-            user.usePoint(2000L);
-            user.usePoint(3000L);
+            Integer originalBalance = user.getCurrentBalance();
+            user.usePoint(2000);
+            user.usePoint(3000);
 
             // then
-            assertThat(user.getBalance()).isEqualTo(originalBalance - 5000L);
+            assertThat(user.getCurrentBalance()).isEqualTo(originalBalance - 5000);
         }
     }
 
     @Nested
-    @DisplayName("유저 생성 테스트")
+    @DisplayName("User 생성")
     class UserCreationTests {
 
         @Test
-        @DisplayName("유저를 정상적으로 생성한다")
-        void createUser() {
+        @DisplayName("모든 필드가 있는 User를 생성한다")
+        void createUser_WithAllFields() {
             // given & when
-            User newUser = User.builder()
-                    .userId(2L)
-                    .userName("새로운 유저")
-                    .balance(TEST_CHARGE_AMOUNT)
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_CHARGE_AMOUNT)
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
                     .build();
 
             // then
-            assertThat(newUser.getUserId()).isEqualTo(2L);
-            assertThat(newUser.getUserName()).isEqualTo("새로운 유저");
-            assertThat(newUser.getBalance()).isEqualTo(TEST_CHARGE_AMOUNT);
-            assertThat(newUser.getCreatedAt()).isNotNull();
-            assertThat(newUser.getUpdatedAt()).isNotNull();
+            assertThat(user.getUserId()).isEqualTo(TEST_USER_ID);
+            assertThat(user.getUserName()).isEqualTo(TEST_USER_NAME);
+            assertThat(user.getCurrentBalance()).isEqualTo(TEST_CHARGE_AMOUNT);
+            assertThat(user.getCreatedAt()).isNotNull();
+            assertThat(user.getUpdatedAt()).isNotNull();
         }
 
         @Test
-        @DisplayName("기본값으로 유저를 생성한다")
-        void createUserWithDefaults() {
+        @DisplayName("최소 필드로 User를 생성한다")
+        void createUser_WithMinimalFields() {
             // given & when
-            User emptyUser = new User();
+            User emptyUser = User.builder().build();
 
             // then
             assertThat(emptyUser.getUserId()).isNull();
             assertThat(emptyUser.getUserName()).isNull();
-            assertThat(emptyUser.getBalance()).isNull();
+            assertThat(emptyUser.getCurrentBalance()).isNull();
             assertThat(emptyUser.getCreatedAt()).isNull();
             assertThat(emptyUser.getUpdatedAt()).isNull();
         }
 
         @Test
-        @DisplayName("0 잔액으로 유저를 생성할 수 있다")
-        void createUserWithZeroBalance() {
+        @DisplayName("0 잔액으로 User를 생성한다")
+        void createUser_WithZeroBalance() {
             // given & when
             User zeroBalanceUser = User.builder()
-                    .userId(3L)
-                    .userName("0잔액 유저")
-                    .balance(TEST_ZERO_AMOUNT)
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_ZERO_AMOUNT)
                     .build();
 
             // then
-            assertThat(zeroBalanceUser.getBalance()).isEqualTo(TEST_ZERO_AMOUNT);
+            assertThat(zeroBalanceUser.getCurrentBalance()).isEqualTo(TEST_ZERO_AMOUNT);
             assertThat(zeroBalanceUser.hasEnoughPoint(TEST_ZERO_AMOUNT)).isTrue();
-            assertThat(zeroBalanceUser.hasEnoughPoint(1L)).isFalse();
+            assertThat(zeroBalanceUser.hasEnoughPoint(1)).isFalse();
         }
     }
 
     @Nested
-    @DisplayName("포인트 연산 복합 테스트")
-    class PointOperationCombinationTests {
+    @DisplayName("포인트 충전 및 사용 조합")
+    class ChargeAndUsePointTests {
 
         @Test
-        @DisplayName("충전 후 사용이 정상적으로 작동한다")
+        @DisplayName("충전 후 사용한다")
         void chargeThenUsePoint() {
             // given
-            long originalBalance = user.getBalance();
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_BALANCE)
+                    .build();
 
             // when
+            Integer originalBalance = user.getCurrentBalance();
             user.chargePoint(TEST_CHARGE_AMOUNT);
             user.usePoint(TEST_USE_AMOUNT);
 
             // then
-            assertThat(user.getBalance()).isEqualTo(originalBalance + 2000L);
+            assertThat(user.getCurrentBalance()).isEqualTo(originalBalance + 2000);
         }
 
         @Test
-        @DisplayName("사용 후 충전이 정상적으로 작동한다")
+        @DisplayName("사용 후 충전한다")
         void useThenChargePoint() {
             // given
-            long originalBalance = user.getBalance();
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_BALANCE)
+                    .build();
 
             // when
+            Integer originalBalance = user.getCurrentBalance();
             user.usePoint(TEST_USE_AMOUNT);
             user.chargePoint(TEST_CHARGE_AMOUNT);
 
             // then
-            assertThat(user.getBalance()).isEqualTo(originalBalance + 2000L);
+            assertThat(user.getCurrentBalance()).isEqualTo(originalBalance + 2000);
         }
 
         @Test
-        @DisplayName("잔액이 부족할 때 충전 후 사용이 가능하다")
-        void chargeAfterInsufficientUse() {
+        @DisplayName("부족한 포인트 사용 후 충전한다")
+        void useInsufficientThenChargePoint() {
             // given
-            long originalBalance = user.getBalance();
+            User user = User.builder()
+                    .userId(TEST_USER_ID)
+                    .userName(TEST_USER_NAME)
+                    .currentBalance(TEST_BALANCE)
+                    .build();
 
-            // when & then
+            // when
+            Integer originalBalance = user.getCurrentBalance();
             assertThatThrownBy(() -> user.usePoint(TEST_INSUFFICIENT_AMOUNT))
                     .isInstanceOf(BusinessException.class);
 
@@ -298,7 +364,8 @@ class UserTest {
             user.chargePoint(TEST_BALANCE);
             user.usePoint(TEST_INSUFFICIENT_AMOUNT);
 
-            assertThat(user.getBalance()).isEqualTo(originalBalance - 5000L);
+            // then
+            assertThat(user.getCurrentBalance()).isEqualTo(originalBalance + TEST_BALANCE - TEST_INSUFFICIENT_AMOUNT);
         }
     }
 } 

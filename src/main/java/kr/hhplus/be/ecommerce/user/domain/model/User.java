@@ -21,24 +21,24 @@ public class User {
 
     private Long userId;
     private String userName;
-    private Long balance;
+    private Integer currentBalance;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     // 비즈니스 메서드
-    public boolean hasEnoughPoint(long amount) {
-        return this.balance >= amount;
+    public boolean hasEnoughPoint(int amount) {
+        return this.currentBalance >= amount;
     }
 
-    public void chargePoint(long amount) {
-        this.balance += amount;
+    public void chargePoint(int amount) {
+        this.currentBalance += amount;
     }
 
-    public void usePoint(long amount) {
+    public void usePoint(int amount) {
         if (!hasEnoughPoint(amount)) {
-            throw new BusinessException(BusinessError.INSUFFICIENT_POINT, "현재 잔액: " + this.balance + ", 필요 금액: " + amount);
+            throw new BusinessException(BusinessError.INSUFFICIENT_POINT, "현재 잔액: " + this.currentBalance + ", 필요 금액: " + amount);
         }
-        this.balance -= amount;
+        this.currentBalance -= amount;
     }
 
 } 

@@ -19,22 +19,24 @@ public class Payment {
 
     private Long paymentId;
     private Long orderId;
-    private Long originalPrice;
-    private Long discountAmount;
-    private Long finalPrice;
-    private PaymentStatus status;
+    private Integer totalAmount;
+    private Integer discountAmount;
+    private Integer finalAmount;
+    private PaymentStatus paymentStatus;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public void updateStatus(PaymentStatus status) {
-        this.status = status;
+        this.paymentStatus = status;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public boolean isSuccessful() {
-        return this.status == PaymentStatus.SUCCESS;
+        return this.paymentStatus == PaymentStatus.SUCCESS;
     }
 
     public boolean isFailed() {
-        return this.status == PaymentStatus.FAILED;
+        return this.paymentStatus == PaymentStatus.FAILED;
     }
 
 } 

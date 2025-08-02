@@ -4,11 +4,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.hhplus.be.ecommerce.common.domain.valueObject.UserId;
+import kr.hhplus.be.ecommerce.common.dto.PageResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Tag(name = "포인트", description = "포인트 관련 API")
 public interface UserApiSpec {
@@ -20,7 +22,7 @@ public interface UserApiSpec {
      * @return 포인트 잔액 응답 DTO
      */
     @Operation(summary = "잔액 조회", description = "특정 사용자의 현재 포인트 잔액을 조회합니다.")
-    ResponseEntity<PointDto.Response> getBalance(@PathVariable("userId") @Valid UserId userId);
+    ResponseEntity<PointDto.Response> getCurrentBalance(@PathVariable("userId") @Valid UserId userId);
 
     /**
      * B-2 잔액 충전
@@ -49,5 +51,19 @@ public interface UserApiSpec {
      * @return 포인트 내역 목록 응답 DTO
      */
     @Operation(summary = "포인트 내역 조회", description = "특정 사용자의 포인트 충전 및 사용 내역을 조회합니다.")
-    ResponseEntity<List<PointDto.HistoryResponse>> getPointHistory(@PathVariable("userId") @Valid UserId userId);
+    ResponseEntity<PageResponse<PointDto.HistoryResponse>> getPointHistory(@PathVariable("userId") @Valid UserId userId);
+
+    /**
+     * B-5 포인트 내역 페이징 조회
+     * 특정 사용자의 포인트 충전 및 사용 내역을 페이징으로 조회합니다.
+     * @param userId 사용자 ID
+     * @param cursor 커서 (날짜 기준, ISO 8601 형식)
+     * @param size 페이지 크기 (기본값: 30)
+     * @return 페이징된 포인트 내역 응답 DTO
+     */
+    @Operation(summary = "포인트 내역 페이징 조회", description = "특정 사용자의 포인트 충전 및 사용 내역을 페이징으로 조회합니다.")
+    ResponseEntity<PageResponse<PointDto.HistoryResponse>> getPointHistoryWithPaging(
+            @PathVariable("userId") @Valid UserId userId,
+            @RequestParam(value = "cursor", required = false) LocalDateTime cursor,
+            @RequestParam(value = "size", defaultValue = "30") Integer size);
 }

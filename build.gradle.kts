@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.4.1"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("org.flywaydb.flyway") version "9.22.3"
 }
 
 fun getGitHash(): String {
@@ -38,6 +39,8 @@ dependencies {
 
     // DB
 	runtimeOnly("com.mysql:mysql-connector-j")
+//	runtimeOnly("com.h2database:h2")
+	implementation("org.flywaydb:flyway-mysql")
 
     // Lombok
     compileOnly("org.projectlombok:lombok")
@@ -67,3 +70,19 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 	systemProperty("user.timezone", "UTC")
 }
+
+flyway {
+	url = "jdbc:mysql://localhost:3306/hhplus"
+	user = "application"
+	password = "application"
+	locations = arrayOf("filesystem:src/main/resources/db/migration")
+}
+
+//val composeUp by tasks.registering(Exec::class) {
+//	workingDir = rootDir
+//	commandLine("docker-compose", "up", "-d", )
+//}
+
+//tasks.named("bootRun") {
+//	dependsOn(composeUp)
+//}

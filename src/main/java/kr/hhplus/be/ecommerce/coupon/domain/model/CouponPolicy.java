@@ -1,11 +1,14 @@
 package kr.hhplus.be.ecommerce.coupon.domain.model;
 
+import kr.hhplus.be.ecommerce.common.exception.BusinessError;
+import kr.hhplus.be.ecommerce.common.exception.BusinessException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * CouponPolicy 도메인 객체
@@ -20,15 +23,15 @@ public class CouponPolicy {
     private Long couponPolicyId;
     private String couponName;
     private DiscountType discountType;
-    private Long discountValue;
-    private Long maxDiscountAmount;
-    private Long minOrderAmount;
+    private Integer discountValue;
+    private Integer maxDiscountAmount;
+    private Integer minOrderAmount;
     private LocalDateTime issueStartAt;
     private LocalDateTime issueEndAt;
     private Integer totalQuantity;
     private Integer remainingQuantity;
     private Integer validDurationDays;
-    private CouponPolicyStatus status;
+    private CouponPolicyStatus couponStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -38,7 +41,7 @@ public class CouponPolicy {
      */
     public boolean isAvailableForIssue() {
         LocalDateTime now = LocalDateTime.now();
-        return this.status == CouponPolicyStatus.ACTIVE &&
+        return this.couponStatus == CouponPolicyStatus.ACTIVE &&
                now.isAfter(this.issueStartAt) &&
                now.isBefore(this.issueEndAt) &&
                this.remainingQuantity > 0;
@@ -47,14 +50,17 @@ public class CouponPolicy {
     /**
      * 쿠폰 발급 처리
      */
-    public void issue() {
+    public void issue(List<UserCoupon> issuedCoupon) {
         if (!isAvailableForIssue()) {
-            throw new IllegalArgumentException("발급할 수 없는 쿠폰입니다.");
+            throw new BusinessException(BusinessError.COUPON_POLICY_UNAVAILABLE);
+        }
+        boolean alreadyIssued = issuedCoupon.stream().anyMatch(c -> c.isIssuedFrom(this));
+        if (alreadyIssued) {
+            throw new BusinessException(BusinessError.COUPON_POLICY_ALREADY_ISSUED);
         }
         this.remainingQuantity--;
-        
         if (this.remainingQuantity == 0) {
-            this.status = CouponPolicyStatus.ENDED;
+            this.couponStatus = CouponPolicyStatus.ENDED;
         }
     }
 

@@ -2,6 +2,11 @@ version: '3'
 services:
   mysql:
     image: mysql:8.0
+    command:
+      --slow-query-log=1
+      --slow-query-log-file=/var/lib/mysql/slow-query.log
+      --long_query_time=1
+      --log-queries-not-using-indexes=1
     ports:
       - "3306:3306"
     environment:

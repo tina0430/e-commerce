@@ -13,7 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "point_transactions")
+@Table(name = "tb_point_transaction")
 @Getter
 @Setter
 @Builder
@@ -35,10 +35,10 @@ public class PointTransactionEntity implements EntityBase {
     private TransactionType transactionType;
 
     @Column(name = "amount", nullable = false, updatable = false)
-    private Long amount;
+    private Integer amount;
 
     @Column(name = "balance", nullable = false)
-    private Long balance;
+    private Integer balance;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)

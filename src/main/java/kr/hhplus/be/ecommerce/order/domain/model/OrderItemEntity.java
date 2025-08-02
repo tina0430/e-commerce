@@ -17,7 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "order_items")
+@Table(name = "tb_order_item")
 @Getter
 @Builder
 @NoArgsConstructor
@@ -42,13 +42,13 @@ public class OrderItemEntity implements EntityBase {
     private Integer quantity;
 
     @Column(name = "unit_price", nullable = false)
-    private Long unitPrice;
+    private Integer unitPrice;
 
     @Column(name = "discount_amount", nullable = false)
-    private Long discountAmount;
+    private Integer discountAmount;
 
-    @Column(name = "final_price", nullable = false)
-    private Long finalPrice;
+    @Column(name = "final_amount", nullable = false)
+    private Integer finalAmount;
 
     @OneToOne(fetch = FetchType.LAZY) // fixme 똑바로 생각해
     @JoinColumn(name = "product_option_id", nullable = false)

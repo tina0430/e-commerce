@@ -14,7 +14,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "tb_order")
 @Getter
 @Setter
 @Builder
@@ -29,11 +29,17 @@ public class OrderEntity implements EntityBase {
     private Long orderId;
 
     @Column(name = "total_amount", nullable = false)
-    private Long totalAmount;
+    private Integer totalAmount;
+
+    @Column(name = "discount_amount", nullable = false)
+    private Integer discountAmount;
+
+    @Column(name = "final_amount", nullable = false)
+    private Integer finalAmount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private OrderStatus status;
+    @Column(name = "order_status", nullable = false)
+    private OrderStatus orderStatus;
 
     @Column(name = "user_id", nullable = false)
     private Long userId;

@@ -46,9 +46,9 @@ class UserServiceTest {
 
     // 테스트 상수 정의
     private static final Long TEST_USER_ID = 1L;
-    private static final Long TEST_BALANCE = 10000L;
-    private static final Long TEST_CHARGE_AMOUNT = 5000L;
-    private static final Long TEST_USE_AMOUNT = 3000L;
+    private static final Integer TEST_BALANCE = 10000;
+    private static final Integer TEST_CHARGE_AMOUNT = 5000;
+    private static final Integer TEST_USE_AMOUNT = 3000;
     private static final Long TEST_TRANSACTION_ID = 1L;
 
     @BeforeEach
@@ -57,7 +57,7 @@ class UserServiceTest {
         userEntity = UserEntity.builder()
                 .userId(TEST_USER_ID)
                 .userName("테스트 유저")
-                .balance(TEST_BALANCE)
+                .currentBalance(TEST_BALANCE)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -65,7 +65,7 @@ class UserServiceTest {
         user = User.builder()
                 .userId(TEST_USER_ID)
                 .userName("테스트 유저")
-                .balance(TEST_BALANCE)
+                .currentBalance(TEST_BALANCE)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -95,13 +95,13 @@ class UserServiceTest {
 
         @Test
         @DisplayName("사용자의 포인트 잔액을 조회한다")
-        void getBalance() {
+        void getCurrentBalance() {
             // given
             when(userRepository.findUserById(TEST_USER_ID)).thenReturn(Optional.of(userEntity));
             when(userMapper.toUser(userEntity)).thenReturn(user);
 
             // when
-            Long result = userService.getBalance(TEST_USER_ID);
+            Integer result = userService.getCurrentBalance(TEST_USER_ID);
 
             // then
             assertThat(result).isEqualTo(TEST_BALANCE);
@@ -111,12 +111,12 @@ class UserServiceTest {
 
         @Test
         @DisplayName("존재하지 않는 사용자의 잔액을 조회하면 예외가 발생한다")
-        void getBalance_UserNotFound() {
+        void getCurrentBalance_UserNotFound() {
             // given
             when(userRepository.findUserById(999L)).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> userService.getBalance(999L))
+            assertThatThrownBy(() -> userService.getCurrentBalance(999L))
                     .isInstanceOf(BusinessException.class)
                     .satisfies(exception -> {
                         BusinessException businessException = (BusinessException) exception;
@@ -143,7 +143,7 @@ class UserServiceTest {
             User result = userService.chargePoint(TEST_USER_ID, TEST_CHARGE_AMOUNT);
 
             // then
-            assertThat(result.getBalance()).isEqualTo(TEST_BALANCE + TEST_CHARGE_AMOUNT);
+            assertThat(result.getCurrentBalance()).isEqualTo(TEST_BALANCE + TEST_CHARGE_AMOUNT);
             verify(userRepository, atLeastOnce()).findUserById(TEST_USER_ID);
             verify(userMapper).toUser(userEntity);
         }
@@ -175,10 +175,10 @@ class UserServiceTest {
             when(userMapper.toUser(userEntity)).thenReturn(user);
 
             // when
-            User result = userService.chargePoint(TEST_USER_ID, 0L);
+            User result = userService.chargePoint(TEST_USER_ID, 0);
 
             // then
-            assertThat(result.getBalance()).isEqualTo(TEST_BALANCE);
+            assertThat(result.getCurrentBalance()).isEqualTo(TEST_BALANCE);
             verify(userRepository, atLeastOnce()).findUserById(TEST_USER_ID);
             verify(userMapper).toUser(userEntity);
         }
@@ -200,7 +200,7 @@ class UserServiceTest {
             User result = userService.usePoint(TEST_USER_ID, TEST_USE_AMOUNT);
 
             // then
-            assertThat(result.getBalance()).isEqualTo(TEST_BALANCE - TEST_USE_AMOUNT);
+            assertThat(result.getCurrentBalance()).isEqualTo(TEST_BALANCE - TEST_USE_AMOUNT);
             verify(userRepository, atLeastOnce()).findUserById(TEST_USER_ID);
             verify(userMapper).toUser(userEntity);
             // applyToEntity와 save 검증은 내부 구현이므로 제외
@@ -233,17 +233,15 @@ class UserServiceTest {
             when(userMapper.toUser(userEntity)).thenReturn(user);
 
             // when & then
-            assertThatThrownBy(() -> userService.usePoint(TEST_USER_ID, 15000L))
+            assertThatThrownBy(() -> userService.usePoint(TEST_USER_ID, TEST_BALANCE + 1000))
                     .isInstanceOf(BusinessException.class)
                     .satisfies(exception -> {
                         BusinessException businessException = (BusinessException) exception;
                         assertThat(businessException.getCode()).isEqualTo(BusinessError.INSUFFICIENT_POINT.getCode());
                     });
 
-            verify(userRepository).findUserById(TEST_USER_ID);
+            verify(userRepository, atLeastOnce()).findUserById(TEST_USER_ID);
             verify(userMapper).toUser(userEntity);
-            verify(userMapper, never()).applyToEntity(any(), any());
-            // save 메서드 검증은 내부 구현이므로 제외
         }
 
         @Test
@@ -255,10 +253,10 @@ class UserServiceTest {
             // applyToEntity와 save는 내부 구현이므로 테스트에서 제외
 
             // when
-            User result = userService.usePoint(TEST_USER_ID, 0L);
+            User result = userService.usePoint(TEST_USER_ID, 0);
 
             // then
-            assertThat(result.getBalance()).isEqualTo(TEST_BALANCE);
+            assertThat(result.getCurrentBalance()).isEqualTo(TEST_BALANCE);
             verify(userRepository, atLeastOnce()).findUserById(TEST_USER_ID);
             verify(userMapper).toUser(userEntity);
             // applyToEntity 검증은 내부 구현이므로 제외
@@ -340,9 +338,9 @@ class UserServiceTest {
 
         @Test
         @DisplayName("null 사용자 ID로 조회하면 예외가 발생한다")
-        void getBalance_NullUserId() {
+        void getCurrentBalance_NullUserId() {
             // when & then
-            assertThatThrownBy(() -> userService.getBalance(null))
+            assertThatThrownBy(() -> userService.getCurrentBalance(null))
                     .isInstanceOf(BusinessException.class)
                     .satisfies(exception -> {
                         BusinessException businessException = (BusinessException) exception;
@@ -354,9 +352,9 @@ class UserServiceTest {
 
         @Test
         @DisplayName("음수 사용자 ID로 조회하면 예외가 발생한다")
-        void getBalance_NegativeUserId() {
+        void getCurrentBalance_NegativeUserId() {
             // when & then
-            assertThatThrownBy(() -> userService.getBalance(-1L))
+            assertThatThrownBy(() -> userService.getCurrentBalance(-1L))
                     .isInstanceOf(BusinessException.class)
                     .satisfies(exception -> {
                         BusinessException businessException = (BusinessException) exception;

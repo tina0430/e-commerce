@@ -20,7 +20,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "payments")
+@Table(name = "tb_payment")
 @Getter
 @Builder
 @NoArgsConstructor
@@ -36,22 +36,26 @@ public class PaymentEntity implements EntityBase {
     @Column(name = "order_id", nullable = false)
     private Long orderId;
 
-    @Column(name = "original_price", nullable = false)
-    private Long originalPrice;
+    @Column(name = "total_amount", nullable = false)
+    private Integer totalAmount;
 
     @Column(name = "discount_amount", nullable = false)
-    private Long discountAmount;
+    private Integer discountAmount;
 
-    @Column(name = "final_price", nullable = false)
-    private Long finalPrice;
+    @Column(name = "final_amount", nullable = false)
+    private Integer finalAmount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private PaymentStatus status;
+    @Column(name = "payment_status", nullable = false)
+    private PaymentStatus paymentStatus;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @CreatedDate
+    @Column(name = "updated_at", nullable = false, updatable = false)
+    private LocalDateTime updatedAt;
 
     @Override
     public Object getId() {
